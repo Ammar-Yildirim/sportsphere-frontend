@@ -30,8 +30,8 @@ const useAxiosPrivate = () => {
 
                 if(error.response.status === 403 || error.response.status === 401){
                     try{
-                        const newAccessToken = await authApi.get('/refresh')
-                        setToken(newAccessToken.data.token)
+                        const newAccessToken = await authApi.get('/refresh');
+                        setToken(newAccessToken.data.token);
                         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken.data.token}`
                         originalRequest._retry = true
                         
