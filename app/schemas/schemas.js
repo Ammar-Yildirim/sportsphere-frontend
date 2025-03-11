@@ -35,8 +35,8 @@ const sportSchema = z.object({
 
 const locationSchema = z.object({
   name: z.string().nonempty(),
-  latitude: z.number(),
-  longitude: z.number(),
+  latitude: z.string().nonempty(),
+  longitude: z.string().nonempty(),
 });
 
 export const createSchema = z
@@ -49,7 +49,7 @@ export const createSchema = z
         "Invalid datetime format (YYYY-MM-DDTHH:mm:ss.sssZ)"
       ),
     title: z.string().max(50, "Title must be at most 50 characters"),
-    location: locationSchema,
+    locationDTO: locationSchema,
     description: z
       .string()
       .max(500, "Description must be at most 500 characters"),
