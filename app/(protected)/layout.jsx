@@ -1,9 +1,7 @@
-import { AuthProvider } from '@/app/context/AuthProvider'; 
+"use client";
+
+import { AuthProvider } from "@/app/Providers/AuthProvider";
 
 export default function ProtectedLayout({ children }) {
-  return (
-    <AuthProvider>
-        {children}
-    </AuthProvider>   
-  );
+  return <AuthProvider>{children}</AuthProvider>;
 }

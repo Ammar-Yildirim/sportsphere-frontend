@@ -3,7 +3,7 @@ import {anton} from '@/app/ui/fonts'
 
 export default function SportSphereLogo(){
     return(
-        <div className="flex flex-row items-center leading-none text-white space-x-2">
+        <div className="flex flex-row items-center leading-none space-x-3">
             <Image 
             src="/SportSphereLogo.png"
             width={33}

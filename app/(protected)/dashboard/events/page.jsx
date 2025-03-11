@@ -1,37 +1,25 @@
-'use client'
+'use client';
 
-import useAxiosPrivate from '@/app/hooks/useAxiosPrivate'
-import { useEffect, useState } from 'react';
-import {useRouter} from 'next/navigation';
+import LocationMap from "@/app/ui/dashboard/LocationMap"
+import useAxiosPrivate from "@/app/hooks/useAxiosPrivate"
+import { useEffect } from "react";
 
 export default function Dashboard(){
-    const axiosPrivate = useAxiosPrivate();
-    const [data, setData] = useState();
-    const router = useRouter();
-
+    const api = useAxiosPrivate();
     
     useEffect(() =>{
-        const getUsers = async () =>{
-            try{
-                const response = await axiosPrivate.get("/demo-controller")
-                setData(response.data)
-            }catch(err){
-                if(!err.response){
-                    console.log("Server outage");
-                    router.push("/")
-                }
-                console.error("ERROR FETCHING DATA"+err)
-            }
+        async function getAll(){
+            const data = await api.get("/events/getAll");
+
+            console.log(data);
         }
 
-        getUsers()
-    }, [])
+        getAll();
+    },[])
 
     return (
-        <div>Dashboard
-            <div>
-                {data ? data : null}
-            </div>
+        <div className="w-64 h-64">
+            <LocationMap coordinates={{ lat: 40.8128, lng: -74.0060 }}/>
         </div> 
     )
 }

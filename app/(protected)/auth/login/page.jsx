@@ -60,7 +60,7 @@ export default function LoginPage(){
                   </label>
                   <input
                     className="w-full py-[9px] px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-500
-                    focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    focus:border-blue-600"
                     placeholder="Enter your email address here"
                     name="email"
                     type="email"
@@ -77,7 +77,7 @@ export default function LoginPage(){
                   </label>
                   <input
                     className="w-full py-[9px] px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-500
-                    focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    focus:border-blue-600"
                     placeholder="Enter password"
                     name="password"
                     type="password"

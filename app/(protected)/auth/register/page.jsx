@@ -15,8 +15,8 @@ export default function RegistrationPage(){
     const router = useRouter();
     
     async function handleRegistration(formData) {
-        const data = Object.fromEntries(formData)
-        const validatedData = RegisterSchema.safeParse(data)
+        const data = Object.fromEntries(formData);
+        const validatedData = RegisterSchema.safeParse(data);
 
         if(!validatedData.success){
             console.log(validatedData.error);
@@ -59,7 +59,7 @@ export default function RegistrationPage(){
                   </label>
                   <input
                     className="w-full py-[9px] px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-500
-                    focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    focus:border-blue-600 "
                     name="firstName"
                     placeholder="John"
                     required
@@ -75,7 +75,7 @@ export default function RegistrationPage(){
                   </label>
                   <input
                     className="w-full py-[9px] px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-500
-                    focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    focus:border-blue-600 "
                     name="lastName"
                     placeholder="Doe"
                     required
@@ -91,7 +91,7 @@ export default function RegistrationPage(){
                   </label>
                   <input
                     className="w-full py-[9px] px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-500
-                    focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    focus:border-blue-600 "
                     name="email"
                     type="email"
                     placeholder="johndoe@gmail.com"
