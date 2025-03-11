@@ -8,11 +8,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MultiLevelDropdown from "@/app/ui/dashboard/MultiLevelDropdown";
 import { createSchema } from "@/app/schemas/schemas";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
+import {useRouter} from 'next/navigation';
 
 const defaultLocation = "City Park MiniArena - artificial grass football pitch";
-const defaultCoordinates = { lat: 47.5084941, lng: 19.086084 };
+const defaultCoordinates = { lat: "47.508494", lng: "19.086084" };
 
 export default function CreateForm({ coordinates, setCoordinates }) {
+  const router = useRouter()
   const axiosPrivate = useAxiosPrivate();
   const [autocomplete, setAutocomplete] = useState(null);
   const [dateTime, setDateTime] = useState(null);
@@ -30,8 +32,8 @@ export default function CreateForm({ coordinates, setCoordinates }) {
     if (autocomplete) {
       const place = autocomplete.getPlace();
       if (place && place.geometry && place.geometry.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
+        const lat = place.geometry.location.lat().toFixed(6).toString();
+        const lng = place.geometry.location.lng().toFixed(6).toString();
         setLocation(place.name);
         setCoordinates({ lat, lng });
         console.log("Selected Address:", place.name);
@@ -43,7 +45,7 @@ export default function CreateForm({ coordinates, setCoordinates }) {
   async function handleAction(formData) {
     let data = {
       ...Object.fromEntries(formData),
-      location: {
+      locationDTO: {
         name: location,
         latitude: coordinates.lat,
         longitude: coordinates.lng,
@@ -65,10 +67,10 @@ export default function CreateForm({ coordinates, setCoordinates }) {
     }
 
     try {
-      const response = await axiosPrivate.post(
-        "/events/create",
+      const response = await axiosPrivate.post("/events/create",
         validatedData.data
       );
+      router.push(`/dashboard/event/${response.data}`);
     } catch (err) {
       console.error("ERROR CREATING EVENT" + err);
     } finally {

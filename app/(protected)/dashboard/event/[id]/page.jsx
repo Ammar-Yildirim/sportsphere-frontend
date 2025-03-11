@@ -35,8 +35,6 @@ import { use } from 'react';
 //   createdBy: "Ammar Yildirim",
 // };
 
-
-
 const participants = [
   { playerName: "John Smith",
     team: "1",
@@ -116,13 +114,13 @@ export default function EventPage({ params }) {
           </div>
           <div className="p-3 flex items-center space-x-1 text-gray-500 border-b border-b-gray-200">
             <MapPinIcon className="w-8" />
-            <p>{parsedEvent.location.name}</p>
+            <p>{parsedEvent.locationDTO.name}</p>
           </div>
           <div className="w-full h-80 md:h-64">
             <LocationMap
               coordinates={{
-                lat: parsedEvent.location.latitude,
-                lng: parsedEvent.location.longitude,
+                lat: parsedEvent.locationDTO.latitude,
+                lng: parsedEvent.locationDTO.longitude,
               }}
               zoom={16}
             />
