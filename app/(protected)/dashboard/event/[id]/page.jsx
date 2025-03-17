@@ -8,6 +8,8 @@ import{
   UserIcon,
   MapPinIcon,
 }from "@heroicons/react/24/solid";
+import Image from 'next/image'
+import sports from "@/public/sports.svg"
 import LocationMap from "@/app/ui/dashboard/LocationMap";
 import { createTeam, parseIncomingEvent } from "@/app/utils/utils";
 import { useEffect, useState } from "react";
@@ -62,8 +64,6 @@ const participants = [
   },
 ]
 
-
-
 export default function EventPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [parsedEvent, setParsedEvent] = useState(null);
@@ -96,11 +96,11 @@ export default function EventPage({ params }) {
 
   return (
     <div className="md:p-6 px-6 w-full max-h-screen text-sm">
-      <h1 className="md:h-1/12 my-2.5 text-3xl font-semibold text-gray-900">
+      <div className="md:h-1/12 my-2.5 text-3xl font-semibold text-gray-900">
         {parsedEvent.title}
-      </h1>
-      <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto w-full pb-3 text-gray-500">
-        <div className="shadow-sm border-gray-200 h-fit">
+      </div>
+      <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto w-full pb-3 pt-1 text-gray-500">
+        <div className="shadow-sm border border-gray-100  h-fit">
           <h3 className="p-2 bg-gray-50 font-semibold text-gray-900">
             When and Where
           </h3>
@@ -126,7 +126,7 @@ export default function EventPage({ params }) {
             />
           </div>
         </div>
-        <div className="p-2 shadow-sm border-gray-200 h-fit ">
+        <div className="p-2 shadow-sm border border-gray-100  h-fit ">
           <div className="flex justify-center items-center">
             <button className="bg-blue-500 px-4 py-2 text-lg font-semibold text-white cursor-pointer active:bg-blue-500 hover:bg-blue-600">
               Join us
@@ -147,8 +147,15 @@ export default function EventPage({ params }) {
             </div>
           </div>
         </div>
-        <div className="shadow-sm border-gray-200 h-fit">
-          <div className="p-5 flex items-center space-x-1 text-gray-500 bg-gray-50">
+        <div className="shadow-sm border border-gray-100 h-fit">
+          <div className="p-5 flex items-center space-x-1 text-gray-500 ">
+            <Image src={sports} alt="Sports icon" className="w-10" />
+            <div>
+              <p className="text-gray-700 font-semibold">{parsedEvent.sport.name}</p>
+              <p className="text-sm">{parsedEvent.sport.category}</p>
+            </div>
+          </div>
+          <div className="p-5 flex items-center space-x-1 text-gray-500 bg-gray-100">
             <UserIcon className="w-10" />
             <div>
               <p className="text-gray-700 font-semibold">{parsedEvent.createdBy}</p>

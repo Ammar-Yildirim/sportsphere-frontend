@@ -3,6 +3,8 @@ import { UserCircleIcon } from "@heroicons/react/24/solid";
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import { clsx } from "clsx";
+import { MdOutlineSportsTennis, MdOutlineSportsSoccer } from "react-icons/md";
+import { FaVolleyballBall, FaBasketballBall, FaTableTennis, FaSkating, FaMountain, FaSpa } from "react-icons/fa";
 
 export function parseIncomingEvent(event) {
   dayjs.extend(advancedFormat);
@@ -59,4 +61,20 @@ export function createTeam(participants, playerNumber, teamNum) {
   }
 
   return items;
+}
+
+export function getSportIcon(sport) {
+  const sportToIcons = {
+    "Tennis": <MdOutlineSportsTennis size={20}/>,
+    "Ping Pong": <FaTableTennis size={20}/>,
+    "Squash": <MdOutlineSportsTennis size={20}/>, 
+    "Football": <MdOutlineSportsSoccer size={20}/>,
+    "Basketball": <FaBasketballBall size={20}/>,
+    "Volleyball": <FaVolleyballBall size={20}/>,
+    "Hiking": <FaMountain size={20}/>,
+    "Ice Skating": <FaSkating size={20}/>,
+    "Yoga": <FaSpa size={20}/>
+  };
+
+  return sportToIcons[sport] || null; 
 }

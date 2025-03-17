@@ -11,22 +11,17 @@ export default function LocationMap({coordinates, zoom}){
         ? coordinates 
         : defaultCenter;
 
-    const parsedCoords = {
-      lat: parseFloat(coords.lat),
-      lng: parseFloat(coords.lng)
-    }
-
     return (
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        center={{ lat: parsedCoords.lat, lng: parsedCoords.lng }}
+        center={{ lat: coords.lat, lng: coords.lng }}
         zoom={zoom}
         options={{
           gestureHandling: "greedy",
           disableDefaultUI: true
         }}
       >
-        <Marker position={parsedCoords} />
+        <Marker position={coords} />
       </GoogleMap>
     );
 }
