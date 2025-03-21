@@ -89,12 +89,45 @@ export default function Dashboard() {
     },
   ];
 
+  function getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+      } else {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      }
+    });
+  }
+
   useEffect(() => {
     async function getData() {
-      const data = await api.get("/events/getAll");
-      console.log(data);
-      setRows(data.data);
+      try {
+        let latitude, longitude;
+        try {
+          const position = await getCurrentLocation();
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+        } catch (locationError) {
+          console.warn("Gelocoation failed/denied: ", locationError);
+          const data = await api.get("/events/getUpcomingEvents");
+          console.log("Fallback data:", data.data);
+          setRows(data.data);
+          return;
+        }
+        const data = await api.get("/events/getUpcomingEventsByLocation", {
+          params: {
+            refLat: latitude,
+            refLon: longitude,
+          },
+        });
+        console.log(data.data);
+        setRows(data.data);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+      return;
     }
+
     getData();
   }, []);
 
