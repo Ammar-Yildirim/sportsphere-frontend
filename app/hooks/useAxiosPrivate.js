@@ -25,10 +25,10 @@ const useAxiosPrivate = () => {
         const responseInterceptor = axiosPrivate.interceptors.response.use(
             response => response,
             async (error) => {
-                console.log("access token failed, trying refreshing")
                 const originalRequest = error.config;
-
+                
                 if(error.response.status === 403 || error.response.status === 401){
+                    console.log("access token failed, trying refreshing")
                     try{
                         const newAccessToken = await authApi.get('/refresh');
                         setToken(newAccessToken.data.token);
