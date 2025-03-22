@@ -12,13 +12,16 @@ import { getGridDateOperators } from "@mui/x-data-grid";
 export default function Dashboard() {
   const api = useAxiosPrivate();
   const [rows, setRows] = useState([]);
+  const [eventToParticipationCount, setEventToParticipationCount] = useState({});
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     {
       field: "sport",
       headerName: "Sport",
       flex: 1,
+      minWidth: 130,
       resizable: false,
       valueGetter: (value, row) => row.sport.name,
       renderCell: (params) => (
@@ -37,6 +40,7 @@ export default function Dashboard() {
     {
       field: "startDate",
       type: "dateTime",
+      minWidth: 70,
       valueGetter: (value, row) => new Date(row.startsAt),
       valueFormatter: (value) => dayjs(value).format("DD MMM"),
       headerName: "Date",
@@ -51,24 +55,26 @@ export default function Dashboard() {
       valueGetter: (value, row) => dayjs(row.startsAt).format("HH:mm"),
       headerName: "Time",
       flex: 0.5,
+      minWidth: 70,
       resizable: false,
     },
     {
       field: "title",
       headerName: "Title",
       flex: 2,
+      minWidth: 150,
       resizable: false,
     },
     {
       field: "Spots",
       valueGetter: (value, row) => {
-        return row.playerNumber * row.teamNumber;
+        return row.sport.category === "Group Sports" ? row.playerNumber : row.playerNumber * row.teamNumber;
       },
       renderCell: (params) => {
         return (
           <div className="flex justify-between items-center h-full">
             <span className="w-12 h-6 flex justify-center items-center text-blue-500 rounded-full border-2 border-blue-500 font-bold">
-              <strong>2/{params.value}</strong>
+              <strong>{eventToParticipationCount[params.id] ?? 0}/{params.value}</strong>
             </span>
             <button
               className="px-3.5 py-1.5 bg-blue-500 text-white rounded-md  hover:bg-blue-600 active:bg-blue-500 text-sm font-semibold cursor-pointer"
@@ -89,70 +95,66 @@ export default function Dashboard() {
     },
   ];
 
-  function getCurrentLocation() {
+  const getCurrentLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by this browser."));
-      } else {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
+        return reject(new Error("Geolocation is not supported by this browser."));
       }
+      navigator.geolocation.getCurrentPosition(resolve, reject);
     });
-  }
+  };
 
   useEffect(() => {
     async function getData() {
       try {
-        let latitude, longitude;
-        try {
-          const position = await getCurrentLocation();
-          latitude = position.coords.latitude;
-          longitude = position.coords.longitude;
-        } catch (locationError) {
-          console.warn("Gelocoation failed/denied: ", locationError);
-          const data = await api.get("/events/getUpcomingEvents");
-          console.log("Fallback data:", data.data);
-          setRows(data.data);
-          return;
-        }
-        const data = await api.get("/events/getUpcomingEventsByLocation", {
-          params: {
-            refLat: latitude,
-            refLon: longitude,
-          },
+        const position = await getCurrentLocation().catch((error) => {
+          console.warn("Geolocation failed/denied:", error);
+          return null; 
         });
-        console.log(data.data);
-        setRows(data.data);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-      return;
-    }
+  
+        const params = position
+          ? { refLat: position.coords.latitude, refLon: position.coords.longitude }
+          : {};
+        const { data : events } = await api.get("/events/getUpcomingEvents", { params });
 
+        const eventIDs = events.map(x => x.id);
+        const {data : participationCounts} = await api.post("/eventParticipation/getParticipationCounts", eventIDs);
+  
+        setRows(events);
+        setEventToParticipationCount(participationCounts);          
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }finally{
+        setLoading(false);
+      }
+    }
+  
     getData();
   }, []);
 
   return (
-    <div className="p-7 w-full">
+    <div className="md:p-7 p-4 w-full">
       <h1 className="text-3xl font-bold mb-3 h-1/12">Find a game</h1>
       <div className="h-11/12">
         <div style={{ height: "99%", width: "99%" }}>
           <DataGrid
+            loading={loading}
             rows={rows}
             columns={columns}
             columnHeaderHeight={40}
             sx={{
               "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: "600", // Keep text styling separate
+                fontWeight: "600", 
               },
               '& .MuiDataGrid-toolbarContainer': {
-                backgroundColor: '#E5E7EB', // Match header background
+                backgroundColor: '#E5E7EB', 
               },
             }}
             slots={{ toolbar: GridToolbar }}
             slotProps={{
               toolbar: {
-                csvOptions: { disableToolbarButton: true }, // Disable export
-                printOptions: { disableToolbarButton: true }, // Disable print
+                csvOptions: { disableToolbarButton: true }, 
+                printOptions: { disableToolbarButton: true },
               },
             }}
           />
