@@ -14,22 +14,22 @@ export default function ParticipationFormation({
 
   async function addParticipant(team, spot) {
     try {
-      const data = await api.post("/eventParticipation/addParticipation", {
+      const {data : addedUser} = await api.post("/eventParticipation/addParticipation", {
         eventID: eventID,
         team: team,
         spot: spot,
       });
       setParticipantData((prevData) => {
         const participantExists = prevData.findIndex(
-          (participant) => participant.userID === data.data.userID
+          (participant) => participant.userID === addedUser.userID
         );
 
         if (participantExists !== -1) {
           return prevData.map((participant, index) =>
-            index === participantExists ? data.data : participant
+            index === participantExists ? addedUser : participant
           );
         } else {
-          return [...prevData, data.data];
+          return [...prevData, addedUser];
         }
       });
       setErrorMessage(null);
