@@ -7,7 +7,8 @@ import {authApi} from '@/app/axiosConfig';
 import {useRouter} from 'next/navigation';
 import SportSphereLogo from '@/app/ui/sportsphere-logo';
 import { lusitana } from '@/app/ui/fonts';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { FaExclamationCircle } from "react-icons/fa";
+
 
 export default function LoginPage(){
     const {setToken} = useAuth()
@@ -93,10 +94,10 @@ export default function LoginPage(){
                   Log in
                 </button>
 
-                <div className="flex h-8 items-end space-x-1">
+                <div className="flex h-8 items-center space-x-1">
                   {errorMessage && (
                     <>
-                      <ExclamationCircleIcon className="text-red-500 h-4 w-4" />
+                      <FaExclamationCircle  className="text-red-500 h-4 w-4" />
                       <p className="text-sm text-red-500">{errorMessage}</p>
                     </>
                   )}

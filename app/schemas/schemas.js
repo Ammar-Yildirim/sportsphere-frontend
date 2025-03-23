@@ -35,8 +35,11 @@ const sportSchema = z.object({
 
 const locationSchema = z.object({
   name: z.string().nonempty(),
-  latitude: z.string().nonempty(),
-  longitude: z.string().nonempty(),
+  latitude: z.number(),
+  longitude: z.number(),
+  formattedAddress: z.string().nonempty(),
+  city: z.string(),
+  country: z.string()
 });
 
 export const createSchema = z

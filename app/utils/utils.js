@@ -1,8 +1,7 @@
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
-import { clsx } from "clsx";
+import { MdOutlineSportsTennis, MdOutlineSportsSoccer } from "react-icons/md";
+import { FaVolleyballBall, FaBasketballBall, FaTableTennis, FaSkating, FaMountain, FaSpa } from "react-icons/fa";
 
 export function parseIncomingEvent(event) {
   dayjs.extend(advancedFormat);
@@ -13,50 +12,18 @@ export function parseIncomingEvent(event) {
   };
 }
 
-export function createTeam(participants, playerNumber, teamNum) {
-  const filteredTeam = participants.filter((x) => x.team == teamNum);
-  const sortedTeam = filteredTeam.sort((a, b) => a.pos - b.pos);
-  let items = [];
-  let idx = 0;
+export function getSportIcon(sport) {
+  const sportToIcons = {
+    "Tennis": <MdOutlineSportsTennis className="w-full h-full"/>,
+    "Ping Pong": <FaTableTennis className="w-full h-full"/>,
+    "Squash": <MdOutlineSportsTennis className="w-full h-full"/>, 
+    "Football": <MdOutlineSportsSoccer className="w-full h-full"/>,
+    "Basketball": <FaBasketballBall className="w-full h-full"/>,
+    "Volleyball": <FaVolleyballBall className="w-full h-full"/>,
+    "Hiking": <FaMountain className="w-full h-full"/>,
+    "Ice Skating": <FaSkating className="w-full h-full"/>,
+    "Yoga": <FaSpa className="w-full h-full"/>
+  };
 
-  for (let i = 1; i <= playerNumber; i++) {
-    if (idx < sortedTeam.length && sortedTeam[idx].pos == i) {
-      items.push(
-        <div
-          key={i}
-          className={clsx(
-            "flex items-center space-x-1",
-            teamNum == 1 ? "justify-end" : "justify-start"
-          )}
-        >
-          {teamNum == 1 && (
-            <p className="text-right">{sortedTeam[idx].playerName}</p>
-          )}
-          <UserCircleIcon className="w-12" />
-          {teamNum == 2 && (
-            <p className=" text-left">{sortedTeam[idx].playerName}</p>
-          )}
-        </div>
-      );
-      idx++;
-    } else {
-      items.push(
-        <div
-          key={i}
-          className={clsx(
-            "flex items-center space-x-1",
-            teamNum == 1 ? "justify-end" : "justify-start"
-          )}
-        >
-          {teamNum == 1 && <p className="text-right">Open Spot</p>}
-          <button className="cursor-pointer">
-            <CheckCircleIcon className="w-12" />
-          </button>
-          {teamNum == 2 && <p className="text-left">Open Spot</p>}
-        </div>
-      );
-    }
-  }
-
-  return items;
+  return sportToIcons[sport] || null; 
 }

@@ -10,8 +10,15 @@ import { createSchema } from "@/app/schemas/schemas";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import {useRouter} from 'next/navigation';
 
-const defaultLocation = "City Park MiniArena - artificial grass football pitch";
-const defaultCoordinates = { lat: "47.508494", lng: "19.086084" };
+const defaultLocation = {
+  name: "City Park MiniArena - artificial grass football pitch",
+  latitude: 47.508494,
+  longitude: 19.086084,
+  formattedAddress: "Budapest, 1146 Hungary",
+  country: "Hungary",
+  city: "Budapest"
+};
+const defaultCoordinates = { lat: 47.508494, lng: 19.086084 };
 
 export default function CreateForm({ coordinates, setCoordinates }) {
   const router = useRouter()
@@ -32,12 +39,28 @@ export default function CreateForm({ coordinates, setCoordinates }) {
     if (autocomplete) {
       const place = autocomplete.getPlace();
       if (place && place.geometry && place.geometry.location) {
-        const lat = place.geometry.location.lat().toFixed(6).toString();
-        const lng = place.geometry.location.lng().toFixed(6).toString();
-        setLocation(place.name);
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        let country = "";
+        let city = "";
+        place.address_components.forEach((component) => {
+          if (component.types.includes("country")) {
+            country = component.long_name;
+          }
+          if (component.types.includes("locality")) {
+            city = component.long_name;
+          }
+        });
+        setLocation({
+          name: place.name,
+          latitude: lat,
+          longitude: lng,
+          formattedAddress: place.formatted_address || "",
+          country: country || "",
+          city: city || ""
+        });
         setCoordinates({ lat, lng });
-        console.log("Selected Address:", place.name);
-        console.log("Coordinates:", lat, lng);
+        console.log("Lat lng", lat, lng)
       }
     }
   };
@@ -46,9 +69,12 @@ export default function CreateForm({ coordinates, setCoordinates }) {
     let data = {
       ...Object.fromEntries(formData),
       locationDTO: {
-        name: location,
-        latitude: coordinates.lat,
-        longitude: coordinates.lng,
+        name: location.name,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        formattedAddress: location.formattedAddress,
+        city: location.city,
+        country: location.country
       },
       startsAt: dateTime.toISOString(),
       sport: selectedSport,
@@ -125,14 +151,14 @@ export default function CreateForm({ coordinates, setCoordinates }) {
         <Autocomplete
           onLoad={handleOnLoad}
           onPlaceChanged={handleOnPlaceChanged}
-          fields={["name", "geometry.location", "formatted_address"]}
+          fields={["name", "geometry.location", "formatted_address", "address_components"]}
         >
           <input
             name="location"
             type="text"
             placeholder=""
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={location.name}
+            onChange={(e) => setLocation({...location, name:e.target.value})}
             className="w-full py-[9px] px-2.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-800
                         focus:border-blue-600"
           />
