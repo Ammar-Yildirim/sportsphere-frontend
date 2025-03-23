@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <div className="flex p-6 w-full ">
       <div className="w-1/2 overflow-y-auto z-1">
-        <h1 className="my-2.5 text-3xl font-semibold">Start a game</h1>
+        <h1 className="my-2.5 text-3xl font-bold">Start a game</h1>
         <CreateForm setCoordinates={setCoordinates} coordinates={coordinates} />
       </div>
       <div className="w-1/2 h-full z-0">
