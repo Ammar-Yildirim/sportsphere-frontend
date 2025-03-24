@@ -7,55 +7,56 @@ export default function Team({
   addParticipant,
   playerNumber,
   teamNum,
-  eventID
 }) {
+  const teamParticipants = participants
+    .filter((participant) => participant.team === teamNum)
+    .sort((a, b) => a.spot - b.spot);
 
-  const filteredTeam = participants.filter((x) => x.team == teamNum);
-  const sortedTeam = filteredTeam.sort((a, b) => a.spot - b.spot);
-  let items = [];
-  let idx = 0;
+  const occupiedSpots = new Map(
+    teamParticipants.map((participant) => [participant.spot, participant])
+  );
 
-  for (let i = 1; i <= playerNumber; i++) {
-    if (idx < sortedTeam.length && sortedTeam[idx].spot == i) {
-      items.push(
-        <div
-          key={i}
-          className={clsx(
-            "flex items-center space-x-1",
-            teamNum == 1 ? "justify-end" : "justify-start"
-          )}
-        >
-          {teamNum == 1 && (
-            <p className="text-right">{sortedTeam[idx].userName}</p>
-          )}
-          <UserCircleIcon className="w-12" />
-          {teamNum == 2 && (
-            <p className=" text-left">{sortedTeam[idx].userName}</p>
-          )}
-        </div>
-      );
-      idx++;
-    } else {
-      items.push(
-        <div
-          key={i}
-          className={clsx(
-            "flex items-center space-x-1",
-            teamNum == 1 ? "justify-end" : "justify-start"
-          )}
-        >
-          {teamNum == 1 && <p className="text-right">Open Spot</p>}
-          <button
-            className="cursor-pointer hover:text-blue-500 active:text-blue-600"
-            onClick={() => addParticipant(teamNum, i)}
+  const isLeftTeam = teamNum === 1;
+  const textClassName = isLeftTeam ? "text-right" : "text-left";
+  const justifyClassName = isLeftTeam ? "justify-end" : "justify-start";
+
+  return (
+    <div>
+      {Array.from({ length: playerNumber }, (_, index) => {
+        const spotNumber = index + 1;
+        const participant = occupiedSpots.get(spotNumber);
+        const isOccupied = !!participant;
+
+        return (
+          <div
+            key={spotNumber}
+            className={clsx("flex items-center space-x-1", justifyClassName)}
           >
-            <CheckCircleIcon className="w-12" />
-          </button>
-          {teamNum == 2 && <p className="text-left">Open Spot</p>}
-        </div>
-      );
-    }
-  }
+            {isLeftTeam && (
+              <p className={textClassName}>
+                {isOccupied ? participant.userName : "Open Spot"}
+              </p>
+            )}
 
-  return <div>{items}</div>;
+            {isOccupied ? (
+              <UserCircleIcon className="w-12" />
+            ) : (
+              <button
+                className="cursor-pointer hover:text-blue-500 active:text-blue-600"
+                onClick={() => addParticipant(teamNum, spotNumber)}
+              >
+                <CheckCircleIcon className="w-12" />
+              </button>
+            )}
+
+            {!isLeftTeam && (
+              <p className={textClassName}>
+                {isOccupied ? participant.userName : "Open Spot"}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }

@@ -19,22 +19,24 @@ export const RegisterSchema = z.object({
 });
 
 const sportSchema = z.object({
-  category: z.enum(["Individual Sports", "Team Sports", "Group Sports"]),
+  category: z.enum(["Individual Sports", "Team Sports", "Group Sports"], {
+    errorMap: (issue, ctx) => {
+      return { message: "Please select a sport category" };
+    }
+  }),
   name: z.enum([
-    "Tennis",
-    "Ping Pong",
-    "Squash",
-    "Football",
-    "Basketball",
-    "Volleyball",
-    "Hiking",
-    "Ice Skating",
-    "Yoga",
-  ]),
+    "Tennis", "Ping Pong", "Squash", 
+    "Football", "Basketball", "Volleyball", 
+    "Hiking", "Ice Skating", "Yoga"
+  ], {
+    errorMap: (issue, ctx) => {
+      return { message: "Please select a specific sport" };
+    }
+  })
 });
 
 const locationSchema = z.object({
-  name: z.string().nonempty(),
+  name: z.string().min(1, "Empty location is not allowed!"),
   latitude: z.number(),
   longitude: z.number(),
   formattedAddress: z.string().nonempty(),
@@ -50,7 +52,14 @@ export const createSchema = z
       .regex(
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
         "Invalid datetime format (YYYY-MM-DDTHH:mm:ss.sssZ)"
-      ),
+      )
+      .refine((dateString) => {
+        const startsAtDate = new Date(dateString);
+        const now = new Date();
+        return startsAtDate > now;
+      }, {
+        message: "Event start time must be in the future",
+      }),
     title: z.string().max(50, "Title must be at most 50 characters"),
     locationDTO: locationSchema,
     description: z
@@ -60,14 +69,13 @@ export const createSchema = z
       message: "Team number must be 0 (Group Sports) or 2 (Other Sports)",
     }),
     playerNumber: z
-      .number()
+      .number({ invalid_type_error: "Please supply a number" })
       .min(1)
       .max(100, "Player number must be between 1 and 100"),
   })
   .superRefine((data, ctx) => {
     const { category } = data.sport;
 
-    // **Validation for teamNumber**
     if (category === "Individual Sports") {
       if (data.teamNumber !== 2) {
         ctx.addIssue({

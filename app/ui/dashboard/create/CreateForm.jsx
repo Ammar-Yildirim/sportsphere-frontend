@@ -8,7 +8,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MultiLevelDropdown from "@/app/ui/dashboard/MultiLevelDropdown";
 import { createSchema } from "@/app/schemas/schemas";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
-import {useRouter} from 'next/navigation';
+import { useRouter } from "next/navigation";
+import ErrorMessage from "@/app/ui/dashboard/ErrorMessage";
 
 const defaultLocation = {
   name: "City Park MiniArena - artificial grass football pitch",
@@ -16,20 +17,46 @@ const defaultLocation = {
   longitude: 19.086084,
   formattedAddress: "Budapest, 1146 Hungary",
   country: "Hungary",
-  city: "Budapest"
+  city: "Budapest",
 };
 const defaultCoordinates = { lat: 47.508494, lng: 19.086084 };
 
 export default function CreateForm({ coordinates, setCoordinates }) {
-  const router = useRouter()
+  const router = useRouter();
   const axiosPrivate = useAxiosPrivate();
   const [autocomplete, setAutocomplete] = useState(null);
-  const [dateTime, setDateTime] = useState(null);
-  const [selectedSport, setSelectedSport] = useState({
-    category: "",
-    name: "",
+
+  const [formState, setFormState] = useState({
+    dateTime: null,
+    sport: {
+      category: "",
+      name: "",
+    },
+    location: defaultLocation,
+    errors: {},
+    title: "",
+    description: "",
+    playerNumber: "",
   });
-  const [location, setLocation] = useState(defaultLocation);
+
+  const updateFormField = (field, value) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const clearFieldError = (field) => {
+    if (formState.errors[field]) {
+      setFormState((prev) => ({
+        ...prev,
+        errors: {
+          ...prev.errors,
+          [field]: null,
+        },
+      }));
+    }
+  };
 
   const handleOnLoad = (auto) => {
     setAutocomplete(auto);
@@ -51,62 +78,89 @@ export default function CreateForm({ coordinates, setCoordinates }) {
             city = component.long_name;
           }
         });
-        setLocation({
+
+        const newLocation = {
           name: place.name,
           latitude: lat,
           longitude: lng,
           formattedAddress: place.formatted_address || "",
           country: country || "",
-          city: city || ""
-        });
+          city: city || "",
+        };
+
+        updateFormField("location", newLocation);
         setCoordinates({ lat, lng });
-        console.log("Lat lng", lat, lng)
       }
     }
   };
 
-  async function handleAction(formData) {
+  async function handleAction(formDataObj) {
+    const formData = Object.fromEntries(formDataObj);
+
     let data = {
-      ...Object.fromEntries(formData),
+      ...formData,
       locationDTO: {
-        name: location.name,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        formattedAddress: location.formattedAddress,
-        city: location.city,
-        country: location.country
+        name: formState.location.name,
+        latitude: formState.location.latitude,
+        longitude: formState.location.longitude,
+        formattedAddress: formState.location.formattedAddress,
+        city: formState.location.city,
+        country: formState.location.country,
       },
-      startsAt: dateTime.toISOString(),
-      sport: selectedSport,
-      teamNumber: selectedSport.category === "Group Sports" ? 0 : 2,
+      startsAt: formState.dateTime?.toISOString(),
+      sport: formState.sport,
+      teamNumber: formState.sport.category === "Group Sports" ? 0 : 2,
       playerNumber:
-        selectedSport.category === "Individual Sports"
+        formState.sport.category === "Individual Sports"
           ? 1
-          : Number(formData.get("playerNumber")),
+          : Number(formData.playerNumber),
     };
 
     const validatedData = createSchema.safeParse(data);
 
     if (!validatedData.success) {
-      console.log(validatedData.error);
+      const formattedErrors = {};
+      validatedData.error.errors.forEach((err) => {
+        const field = err.path[0];
+        if (!formattedErrors[field]) {
+          formattedErrors[field] = [];
+        }
+        formattedErrors[field].push(err.message);
+      });
+
+      updateFormField("errors", formattedErrors);
       return;
     }
 
     try {
-      const response = await axiosPrivate.post("/events/create",
+      const { data } = await axiosPrivate.post(
+        "/events/create",
         validatedData.data
       );
-      router.push(`/dashboard/event/${response.data}`);
+      router.push(`/dashboard/event/${data}`);
     } catch (err) {
       console.error("ERROR CREATING EVENT" + err);
+      if (err.response && err.response.data && err.response.data.errors) {
+        updateFormField("errors", err.response.data.errors);
+      } else {
+        updateFormField("errors", { form: ["An unexpected error occurred."] });
+      }
     } finally {
-      setLocation(defaultLocation);
-      setCoordinates(defaultCoordinates);
-      setDateTime(null);
-      setSelectedSport({
-        category: "",
-        name: "",
-      });
+      if (!formState.errors.form) {
+        setFormState({
+          dateTime: null,
+          sport: {
+            category: "",
+            name: "",
+          },
+          location: defaultLocation,
+          errors: {},
+          title: "",
+          description: "",
+          playerNumber: "",
+        });
+        setCoordinates(defaultCoordinates);
+      }
     }
   }
 
@@ -120,9 +174,13 @@ export default function CreateForm({ coordinates, setCoordinates }) {
           Sport
         </label>
         <MultiLevelDropdown
-          selectedSport={selectedSport}
-          setSelectedSport={setSelectedSport}
+          selectedSport={formState.sport}
+          setSelectedSport={(sport) => {
+            updateFormField("sport", sport);
+            clearFieldError("sport");
+          }}
         />
+        <ErrorMessage fieldName="sport" errors={formState.errors} />
       </div>
       <div>
         <label htmlFor="title" className="text-gray-600 mb-0.5 block">
@@ -138,7 +196,13 @@ export default function CreateForm({ coordinates, setCoordinates }) {
               focus:border-blue-600"
           maxLength={50}
           required
+          value={formState.title}
+          onChange={(e) => {
+            updateFormField("title", e.target.value);
+            clearFieldError("title");
+          }}
         />
+        <ErrorMessage fieldName="title" errors={formState.errors} />
       </div>
 
       <div>
@@ -151,18 +215,30 @@ export default function CreateForm({ coordinates, setCoordinates }) {
         <Autocomplete
           onLoad={handleOnLoad}
           onPlaceChanged={handleOnPlaceChanged}
-          fields={["name", "geometry.location", "formatted_address", "address_components"]}
+          fields={[
+            "name",
+            "geometry.location",
+            "formatted_address",
+            "address_components",
+          ]}
         >
           <input
             name="location"
             type="text"
             placeholder=""
-            value={location.name}
-            onChange={(e) => setLocation({...location, name:e.target.value})}
+            value={formState.location.name}
+            onChange={(e) => {
+              updateFormField("location", {
+                ...formState.location,
+                name: e.target.value,
+              });
+              clearFieldError("locationDTO");
+            }}
             className="w-full py-[9px] px-2.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-800
                         focus:border-blue-600"
           />
         </Autocomplete>
+        <ErrorMessage fieldName="locationDTO" errors={formState.errors} />
       </div>
 
       <div>
@@ -181,17 +257,36 @@ export default function CreateForm({ coordinates, setCoordinates }) {
           className="w-full py-2 px-1.5 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-800 focus:border-blue-600 h-24"
           maxLength={500}
           required
+          value={formState.description}
+          onChange={(e) => {
+            updateFormField("description", e.target.value);
+            clearFieldError("description");
+          }}
         ></textarea>
+        <ErrorMessage fieldName="description" errors={formState.errors} />
       </div>
       <div>
+      <label
+          htmlFor="dateTime"
+          className="text-gray-600 mb-0.5 block text-sm"
+        >
+          <abbr title="required" className="cursor-help">
+            *
+          </abbr>{" "}
+          Starts At
+        </label>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
-            label="Start At"
-            value={dateTime}
-            onChange={(newValue) => setDateTime(newValue)}
+            id="dateTime"
+            value={formState.dateTime}
+            onChange={(newValue) => {
+              updateFormField("dateTime", newValue);
+              clearFieldError("startsAt");
+            }}
             slotProps={{ textField: { size: "small" } }}
           />
         </LocalizationProvider>
+        <ErrorMessage fieldName="startsAt" errors={formState.errors} />
       </div>
 
       <div className="md:flex md:space-x-10">
@@ -200,6 +295,9 @@ export default function CreateForm({ coordinates, setCoordinates }) {
             htmlFor="teamNumber"
             className="text-gray-600 mb-1 block text-sm"
           >
+            <abbr title="required" className="cursor-help">
+              *
+            </abbr>{" "}
             Team Number
           </label>
           <input
@@ -209,9 +307,12 @@ export default function CreateForm({ coordinates, setCoordinates }) {
                 text-gray-500 bg-gray-200 border-gray-200 cursor-not-allowed"
             disabled
             value={
-              selectedSport.category === "Group Sports" ? "No teams" : "2 Teams"
+              formState.sport.category === "Group Sports"
+                ? "No teams"
+                : "2 Teams"
             }
           ></input>
+          <ErrorMessage fieldName="teamNumber" errors={formState.errors} />
         </div>
 
         <div>
@@ -219,9 +320,12 @@ export default function CreateForm({ coordinates, setCoordinates }) {
             htmlFor="playerNumber"
             className="text-gray-600 mb-1 block text-sm"
           >
+            <abbr title="required" className="cursor-help">
+              *
+            </abbr>{" "}
             Players per Team
           </label>
-          {selectedSport.category === "Group Sports" && (
+          {formState.sport.category === "Group Sports" && (
             <input
               type="number"
               name="playerNumber"
@@ -230,14 +334,24 @@ export default function CreateForm({ coordinates, setCoordinates }) {
               min={1}
               max={100}
               required
+              value={formState.playerNumber}
+              onChange={(e) => {
+                updateFormField("playerNumber", e.target.value);
+                clearFieldError("playerNumber");
+              }}
             />
           )}
-          {selectedSport.category === "Team Sports" && (
+          {formState.sport.category === "Team Sports" && (
             <select
               name="playerNumber"
               id="playerNumber"
               className="py-2 px-1.5 w-28 rounded-md border border-gray-300 text-sm outline-none placeholder:text-gray-800 focus:border-blue-600"
               required
+              value={formState.playerNumber}
+              onChange={(e) => {
+                updateFormField("playerNumber", e.target.value);
+                clearFieldError("playerNumber");
+              }}
             >
               <option value="" disabled>
                 Choose an option
@@ -249,7 +363,7 @@ export default function CreateForm({ coordinates, setCoordinates }) {
               ))}
             </select>
           )}
-          {selectedSport.category === "Individual Sports" && (
+          {formState.sport.category === "Individual Sports" && (
             <input
               name="teamNumber"
               id="teamNumber"
@@ -257,9 +371,10 @@ export default function CreateForm({ coordinates, setCoordinates }) {
                 text-gray-500 bg-gray-200 border-gray-200 cursor-not-allowed"
               disabled
               value="1 player"
-              hidden={selectedSport.category !== "Individual Sports"}
+              hidden={formState.sport.category !== "Individual Sports"}
             ></input>
           )}
+          <ErrorMessage fieldName="playerNumber" errors={formState.errors} />
         </div>
       </div>
 
