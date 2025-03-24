@@ -64,7 +64,7 @@ export default function EventGrid({
       },
       renderCell: (params) => {
         return (
-          <div className="flex justify-between items-center h-full">
+          <div className="flex space-x-3 items-center h-full">
             {eventToParticipationCount && (
               <span className="w-12 h-6 flex justify-center items-center text-blue-500 rounded-full border-2 border-blue-500 font-bold">
                 <strong>
@@ -93,7 +93,7 @@ export default function EventGrid({
   ];
 
   return (
-    <div className="p-2 pt-0 h-[300px]">
+    <div className="p-4 pt-0 h-[300px]">
       <DataGrid
         rows={rows}
         columns={columns}

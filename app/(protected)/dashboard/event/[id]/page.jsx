@@ -74,11 +74,6 @@ export default function EventPage({ params }) {
           </div>
         </div>
         <div className="p-2 shadow-sm border border-gray-100  h-fit ">
-          <div className="flex justify-center items-center">
-            <button className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
-              Pick Your Spot
-            </button>
-          </div>
           <ParticipationFormation
             eventID={id}
             teamNumber={eventData.teamNumber}

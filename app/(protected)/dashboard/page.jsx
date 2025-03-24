@@ -4,6 +4,7 @@ import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { useState } from "react";
 import EventGrid from "@/app/ui/dashboard/EventGrid";
 import EventLineChart from "@/app/ui/dashboard/EventLineChart";
+import { ChevronDownIcon, CalendarIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 
 export default function Dashboard() {
   const api = useAxiosPrivate();
@@ -29,6 +30,8 @@ export default function Dashboard() {
     registeredEvents: false,
     createdEvents: false,
   });
+  const [activeCreatedTab, setActiveCreatedTab] = useState('upcoming');
+  const [activeRegisteredTab, setActiveRegisteredTab] = useState('upcoming');
 
   async function getRegisteredUpcomingEvents() {
     try {
@@ -122,90 +125,199 @@ export default function Dashboard() {
       getRegisteredUpcomingEvents();
     }
   };
+  
+  const renderCreatedEvents = () => {
+    if (activeCreatedTab === 'upcoming') {
+      return loading.createdUpcomingEventsLoading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : createdUpcomingEvents.rows.length > 0 ? (
+        <EventGrid
+          loading={loading.createdUpcomingEventsLoading}
+          rows={createdUpcomingEvents.rows}
+          eventToParticipationCount={createdUpcomingEvents.eventToParticipationCount}
+        />
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <div className="mb-2">No upcoming events created</div>
+          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition">
+            Create an event
+          </button>
+        </div>
+      );
+    } else {
+      return loading.createdPastEventsLoading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : createdPastEvents.length > 0 ? (
+        <EventGrid
+          loading={loading.createdPastEventsLoading}
+          rows={createdPastEvents}
+        />
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <div className="mb-2">No past events created</div>
+          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition">
+            Create an event
+          </button>
+        </div>
+      );
+    }
+  };
+
+  const renderRegisteredEvents = () => {
+    if (activeRegisteredTab === 'upcoming') {
+      return loading.registeredUpcomingEventsLoading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      ) : registeredUpcomingEvents.rows.length > 0 ? (
+        <EventGrid
+          loading={loading.registeredUpcomingEventsLoading}
+          rows={registeredUpcomingEvents.rows}
+          eventToParticipationCount={registeredUpcomingEvents.eventToParticipationCount}
+        />
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <div className="mb-2">No upcoming registered events</div>
+          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition">
+            Browse events
+          </button>
+        </div>
+      );
+    } else {
+      return loading.registeredPastEventsLoading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      ) : registeredPastEvents.length > 0 ? (
+        <EventGrid
+          loading={loading.registeredPastEventsLoading}
+          rows={registeredPastEvents}
+        />
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <div className="mb-2">No past registered events</div>
+          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition">
+            Browse events
+          </button>
+        </div>
+      );
+    }
+  };
 
   return (
-    <div className="overflow-y-auto md:w-[calc(100%-16rem)] px-2 py-4">
-      <div className="p-2 flex flex-col justify-center items-center">
-        <h1 className="text-left w-full text-2xl font-semibold">
-          Monthly Event Participation
+    <div className="overflow-y-auto md:w-[calc(100%-16rem)] p-6 bg-gray-50">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h1 className="text-left w-full text-2xl font-bold text-gray-800 mb-4 flex items-center">
+          <span className="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
+            <CalendarIcon className="w-6 h-6" />
+          </span>
+          2025 Monthly Event Participation
         </h1>
-        <EventLineChart />
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <EventLineChart />
+        </div>
       </div>
-      <div className="py-2">
-        <button
-          onClick={handleCreatedEventsClick}
-          className="flex items-center text-left text-2xl font-semibold py-2 focus:outline-none cursor-pointer"
-        >
-          <span>Created Events</span>
-          <span
-            className="ml-2 transform transition-transform duration-200 text-base"
-            style={{
-              transform: showCreatedEvents ? "rotate(180deg)" : "rotate(0deg)",
-            }}
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <button
+            onClick={handleCreatedEventsClick}
+            className="w-full flex items-center justify-between text-left text-xl font-semibold p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white focus:outline-none cursor-pointer"
           >
-            ▼
-          </span>
-        </button>
-        {showCreatedEvents && (
-          <div className="md:flex">
-            <div className="h-full md:w-1/2">
-              <h1 className="m-2 text-lg font-semibold">Past</h1>
-              <EventGrid
-                loading={loading.createdPastEventsLoading}
-                rows={createdPastEvents}
-              />
+            <div className="flex items-center">
+              <PlusCircleIcon className="w-6 h-6 mr-2" />
+              <span>Created Events</span>
             </div>
-            <div className="h-full md:w-1/2">
-              <h1 className="m-2 text-lg font-semibold">Upcoming</h1>
-              <EventGrid
-                loading={loading.createdUpcomingEventsLoading}
-                rows={createdUpcomingEvents.rows}
-                eventToParticipationCount={
-                  createdUpcomingEvents.eventToParticipationCount
-                }
-              />
+            <ChevronDownIcon
+              className={`w-5 h-5 transition-transform duration-200 ${
+                showCreatedEvents ? "transform rotate-180" : ""
+              }`}
+            />
+          </button>
+          
+          {showCreatedEvents && (
+            <div className="p-4">
+              <div className="flex border-b border-gray-200">
+                <button 
+                  className={`px-4 py-2 font-medium text-sm ${
+                    activeCreatedTab === 'upcoming' 
+                      ? 'text-blue-600 border-b-2 border-blue-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setActiveCreatedTab('upcoming')}
+                >
+                  Upcoming
+                </button>
+                <button 
+                  className={`px-4 py-2 font-medium text-sm ${
+                    activeCreatedTab === 'past' 
+                      ? 'text-blue-600 border-b-2 border-blue-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setActiveCreatedTab('past')}
+                >
+                  Past
+                </button>
+              </div>
+              
+              <div className="mt-4">
+                {renderCreatedEvents()}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-      <div className="py-2">
-        <button
-          onClick={handleRegisteredEventsClick}
-          className="flex items-center text-left text-2xl font-semibold py-2 focus:outline-none cursor-pointer"
-        >
-          <span>Registered Events</span>
-          <span
-            className="ml-2 transform transition-transform duration-200 text-base"
-            style={{
-              transform: showRegisteredEvents
-                ? "rotate(180deg)"
-                : "rotate(0deg)",
-            }}
+          )}
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <button
+            onClick={handleRegisteredEventsClick}
+            className="w-full flex items-center justify-between text-left text-xl font-semibold p-4 bg-gradient-to-r from-green-500 to-green-600 text-white focus:outline-none cursor-pointer"
           >
-            ▼
-          </span>
-        </button>
-        {showRegisteredEvents && (
-          <div className="md:flex">
-            <div className="md:w-1/2 h-full">
-              <h1 className="m-2 text-lg font-semibold">Past</h1>
-              <EventGrid
-                loading={loading.registeredPastEventsLoading}
-                rows={registeredPastEvents}
-              />
+            <div className="flex items-center">
+              <CalendarIcon className="w-6 h-6 mr-2" />
+              <span>Registered Events</span>
             </div>
-            <div className="md:w-1/2 h-full">
-              <h1 className="m-2 text-lg font-semibold">Upcoming</h1>
-              <EventGrid
-                loading={loading.registeredUpcomingEventsLoading}
-                rows={registeredUpcomingEvents.rows}
-                eventToParticipationCount={
-                  registeredUpcomingEvents.eventToParticipationCount
-                }
-              />
+            <ChevronDownIcon
+              className={`w-5 h-5 transition-transform duration-200 ${
+                showRegisteredEvents ? "transform rotate-180" : ""
+              }`}
+            />
+          </button>
+          
+          {showRegisteredEvents && (
+            <div className="p-4">
+              <div className="flex border-b border-gray-200">
+                <button 
+                  className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                    activeRegisteredTab === 'upcoming' 
+                      ? 'text-green-600 border-b-2 border-green-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setActiveRegisteredTab('upcoming')}
+                >
+                  Upcoming
+                </button>
+                <button 
+                  className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                    activeRegisteredTab === 'past' 
+                      ? 'text-green-600 border-b-2 border-green-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setActiveRegisteredTab('past')}
+                >
+                  Past
+                </button>
+              </div>
+              
+              <div className="mt-4">
+                {renderRegisteredEvents()}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

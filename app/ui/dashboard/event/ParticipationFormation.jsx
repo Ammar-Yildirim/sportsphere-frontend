@@ -14,11 +14,14 @@ export default function ParticipationFormation({
 
   async function addParticipant(team, spot) {
     try {
-      const {data : addedUser} = await api.post("/eventParticipation/addParticipation", {
-        eventID: eventID,
-        team: team,
-        spot: spot,
-      });
+      const { data: addedUser } = await api.post(
+        "/eventParticipation/addParticipation",
+        {
+          eventID: eventID,
+          team: team,
+          spot: spot,
+        }
+      );
       setParticipantData((prevData) => {
         const participantExists = prevData.findIndex(
           (participant) => participant.userID === addedUser.userID
@@ -54,41 +57,48 @@ export default function ParticipationFormation({
   }, [errorMessage]);
 
   return (
-    <div className="mt-2">
-      <div className="m-2 flex items-center space-x-1">
-        {errorMessage && (
-          <>
-            <FaExclamationCircle className="text-red-500 min-h-4 min-w-4" />
-            <p className="text-xs text-red-500">{errorMessage}</p>
-          </>
-        )}
+    <>
+      <div className="flex justify-center items-center">
+        <button className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
+          Pick Your Spot
+        </button>
       </div>
-      <div className="flex justify-center space-x-3">
-        <div className="w-1/2">
-          <h3 className="w-full text-right font-semibold text-gray-900 text-base">
-            Team 1
-          </h3>
-          <Team
-            participants={participantData}
-            addParticipant={addParticipant}
-            playerNumber={playerNumber}
-            teamNum={1}
-            eventID={eventID}
-          />
+      <div className="mt-2">
+        <div className="m-2 flex items-center space-x-1">
+          {errorMessage && (
+            <>
+              <FaExclamationCircle className="text-red-500 min-h-4 min-w-4" />
+              <p className="text-xs text-red-500">{errorMessage}</p>
+            </>
+          )}
         </div>
-        <div className="w-1/2 text-left">
-          <h3 className="w-full font-semibold text-gray-900 text-base">
-            Team 2
-          </h3>
-          <Team
-            participants={participantData}
-            addParticipant={addParticipant}
-            playerNumber={playerNumber}
-            teamNum={2}
-            eventID={eventID}
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <h3 className="w-full text-right font-semibold text-gray-900 text-base">
+              Team 1
+            </h3>
+            <Team
+              participants={participantData}
+              addParticipant={addParticipant}
+              playerNumber={playerNumber}
+              teamNum={1}
+              eventID={eventID}
+            />
+          </div>
+          <div className="text-left">
+            <h3 className="w-full font-semibold text-gray-900 text-base">
+              Team 2
+            </h3>
+            <Team
+              participants={participantData}
+              addParticipant={addParticipant}
+              playerNumber={playerNumber}
+              teamNum={2}
+              eventID={eventID}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
