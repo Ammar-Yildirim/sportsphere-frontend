@@ -10,6 +10,10 @@ import { createSchema } from "@/app/schemas/schemas";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { useRouter } from "next/navigation";
 import ErrorMessage from "@/app/ui/dashboard/ErrorMessage";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 const defaultLocation = {
   name: "City Park MiniArena - artificial grass football pitch",
@@ -40,6 +44,7 @@ export default function CreateForm({ coordinates, setCoordinates }) {
   });
 
   const updateFormField = (field, value) => {
+    console.log(`${field} ${value}`)
     setFormState((prev) => ({
       ...prev,
       [field]: value,
@@ -107,7 +112,7 @@ export default function CreateForm({ coordinates, setCoordinates }) {
         city: formState.location.city,
         country: formState.location.country,
       },
-      startsAt: formState.dateTime?.toISOString(),
+      startsAt: formState.dateTime ? dayjs(formState.dateTime).utc().toISOString() : null,
       sport: formState.sport,
       teamNumber: formState.sport.category === "Group Sports" ? 0 : 2,
       playerNumber:
@@ -280,10 +285,14 @@ export default function CreateForm({ coordinates, setCoordinates }) {
             id="dateTime"
             value={formState.dateTime}
             onChange={(newValue) => {
-              updateFormField("dateTime", newValue);
+              updateFormField("dateTime",  newValue ? dayjs(newValue) : null);
               clearFieldError("startsAt");
             }}
             slotProps={{ textField: { size: "small" } }}
+            localeDatePickerProps={{
+              disableTimezone: true
+            }}
+            timezone="UTC"
           />
         </LocalizationProvider>
         <ErrorMessage fieldName="startsAt" errors={formState.errors} />

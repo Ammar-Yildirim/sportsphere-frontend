@@ -1,28 +1,19 @@
-import { clsx } from "clsx";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
-export default function Team({
+export default function GroupFormation({
   participants,
   addParticipant,
   playerNumber,
-  teamNum,
-  isPastEvent
+  isPastEvent,
 }) {
-  const teamParticipants = participants
-    .filter((participant) => participant.team === teamNum)
-    .sort((a, b) => a.spot - b.spot);
-
+  const teamParticipants = participants.sort((a, b) => a.spot - b.spot);
   const occupiedSpots = new Map(
     teamParticipants.map((participant) => [participant.spot, participant])
   );
 
-  const isLeftTeam = teamNum === 1;
-  const textClassName = isLeftTeam ? "text-right" : "text-left";
-  const justifyClassName = isLeftTeam ? "justify-end" : "justify-start";
-
   return (
-    <div>
+    <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
       {Array.from({ length: playerNumber }, (_, index) => {
         const spotNumber = index + 1;
         const participant = occupiedSpots.get(spotNumber);
@@ -31,14 +22,9 @@ export default function Team({
         return (
           <div
             key={spotNumber}
-            className={clsx("flex items-center space-x-1", justifyClassName)}
+            className="flex items-center justify-end space-x-1 w-full"
           >
-            {isLeftTeam && (
-              <p className={textClassName}>
-                {isOccupied ? participant.userName : "Open Spot"}
-              </p>
-            )}
-
+            <p>{isOccupied ? participant.userName : "Open Spot"}</p>
             {isOccupied ? (
               <UserCircleIcon className="w-12" />
             ) : (
@@ -52,12 +38,6 @@ export default function Team({
               >
                 <CheckCircleIcon className="w-12" />
               </button>
-            )}
-
-            {!isLeftTeam && (
-              <p className={textClassName}>
-                {isOccupied ? participant.userName : "Open Spot"}
-              </p>
             )}
           </div>
         );

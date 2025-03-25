@@ -17,14 +17,12 @@ export default function EventPage({ params }) {
 
   useEffect(() => {
     async function getEventData() {
-      const data = await api.get("/events/getByID", {
+      const {data} = await api.get("/events/getByID", {
         params: {
           id: id,
         },
       });
-      console.log(data);
-      const fetchedEvent = data.data;
-      setEventData(parseIncomingEvent(fetchedEvent));
+      setEventData(parseIncomingEvent(data));
       setEventLoading(false);
     }
 
@@ -40,7 +38,7 @@ export default function EventPage({ params }) {
       <div className="md:h-1/12 my-2.5 text-3xl font-semibold text-gray-900">
         {eventData.title}
       </div>
-      <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto w-full pb-3 pt-1 text-gray-500">
+      <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto md:space-y-0 w-full pb-3 text-gray-500 space-y-5">
         <div className="shadow-sm border border-gray-100  h-fit">
           <h3 className="p-2 bg-gray-50 font-semibold text-gray-900">
             When and Where
@@ -73,11 +71,12 @@ export default function EventPage({ params }) {
             />
           </div>
         </div>
-        <div className="p-2 shadow-sm border border-gray-100  h-fit ">
+        <div className={`p-2 shadow-sm border border-gray-100 ${eventData.sport.category === 'Group Sports' ? "h-full flex flex-col overflow-y-hidden" : "h-fit" }`}>
           <ParticipationFormation
             eventID={id}
-            teamNumber={eventData.teamNumber}
             playerNumber={eventData.playerNumber}
+            sportCategory={eventData.sport.category}
+            isPastEvent={new Date(eventData.startsAt) < new Date()}
           />
         </div>
         <div className="shadow-sm border border-gray-100 h-fit">
