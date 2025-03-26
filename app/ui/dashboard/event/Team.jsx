@@ -1,14 +1,17 @@
 import { clsx } from "clsx";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
+import useAuth from "@/app/hooks/useAuth";
 
 export default function Team({
   participants,
   addParticipant,
+  removeParticipant,
   playerNumber,
   teamNum,
-  isPastEvent
+  isPastEvent,
 }) {
+  const { userId } = useAuth();
   const teamParticipants = participants
     .filter((participant) => participant.team === teamNum)
     .sort((a, b) => a.spot - b.spot);
@@ -27,6 +30,7 @@ export default function Team({
         const spotNumber = index + 1;
         const participant = occupiedSpots.get(spotNumber);
         const isOccupied = !!participant;
+        const isCurrentUserSpot = isOccupied && participant.userID === userId;
 
         return (
           <div
@@ -40,14 +44,25 @@ export default function Team({
             )}
 
             {isOccupied ? (
-              <UserCircleIcon className="w-12" />
+              <UserCircleIcon
+                className={`w-12 ${
+                  isCurrentUserSpot && !isPastEvent ? "hover:text-red-600 cursor-pointer" : ""
+                }`}
+                onClick={
+                  isCurrentUserSpot && !isPastEvent ? () => removeParticipant() : undefined
+                }
+              />
             ) : (
               <button
                 className={`${
                   !isPastEvent &&
                   "cursor-pointer hover:text-blue-500 active:text-blue-600"
                 }`}
-                onClick={!isPastEvent ? () => addParticipant(1, spotNumber) : undefined}
+                onClick={
+                  !isPastEvent
+                    ? () => addParticipant(teamNum, spotNumber)
+                    : undefined
+                }
                 disabled={isPastEvent}
               >
                 <CheckCircleIcon className="w-12" />

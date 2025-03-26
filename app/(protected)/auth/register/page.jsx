@@ -12,6 +12,7 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 export default function RegistrationPage(){
     const [errorMessage, setErrorMessage] = useState('')
     const {setToken} = useAuth();
+    const {setUserId} = useAuth();
     const router = useRouter();
     
     async function handleRegistration(formData) {
@@ -25,14 +26,15 @@ export default function RegistrationPage(){
         }
 
         try{
-            const response = await authApi.post('/register', {
+            const {data} = await authApi.post('/register', {
                 ...validatedData.data
             })
-            setToken(response.data.token)
-            router.push('/dashboard')
+            setToken(data.token);
+            setUserId(data.userId);
+            router.push('/dashboard');
         }catch(err){
-            console.error("Error status: ", err)
-            setErrorMessage(err.response.data.message)
+            console.error("Error status: ", err);
+            setErrorMessage(err.response.data.message);
        } 
     }
 

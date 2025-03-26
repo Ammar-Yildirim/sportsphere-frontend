@@ -39,7 +39,25 @@ export default function ParticipationFormation({
       });
       setErrorMessage(null);
     } catch (err) {
-      if (err.response.data.message) {
+      if (err.response?.data?.message) {
+        setErrorMessage(err.response.data.message);
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
+      return;
+    }
+  }
+
+  async function removeParticipant() {
+    try {
+      const {data: userID} = await api.delete(`/eventParticipation/removeParticipation/${eventID}`);
+      setParticipantData((prevData) => 
+        prevData.filter(participant => participant.userID !== userID)
+      );
+      
+      setErrorMessage(null);
+    } catch (err) {
+      if (err.response?.data?.message) {
         setErrorMessage(err.response.data.message);
       } else {
         setErrorMessage("An unexpected error occurred.");
@@ -92,6 +110,7 @@ export default function ParticipationFormation({
           <GroupFormation
             participants={participantData}
             addParticipant={addParticipant}
+            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />
@@ -99,6 +118,7 @@ export default function ParticipationFormation({
           <TeamFormation
             participants={participantData}
             addParticipant={addParticipant}
+            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />

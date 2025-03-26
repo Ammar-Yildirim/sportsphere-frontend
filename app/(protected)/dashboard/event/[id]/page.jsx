@@ -8,6 +8,7 @@ import { parseIncomingEvent } from "@/app/utils/utils";
 import { use, useEffect, useState } from "react";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import ParticipationFormation from "@/app/ui/dashboard/event/ParticipationFormation";
+import Spinner from '@/app/ui/dashboard/Spinner'
 
 export default function EventPage({ params }) {
   const [eventLoading, setEventLoading] = useState(true);
@@ -30,7 +31,9 @@ export default function EventPage({ params }) {
   }, []);
 
   if (eventLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Spinner />
+    );
   }
 
   return (
