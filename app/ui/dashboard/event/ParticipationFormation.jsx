@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import Team from "@/app/ui/dashboard/event/Team";
 import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { FaExclamationCircle } from "react-icons/fa";
+import GroupFormation from "@/app/ui/dashboard/event/GroupFormation";
+import TeamFormation from "./TeamFormation";
 
 export default function ParticipationFormation({
   eventID,
-  teamNumber,
   playerNumber,
+  sportCategory,
+  isPastEvent,
 }) {
   const [participantData, setParticipantData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -37,7 +39,29 @@ export default function ParticipationFormation({
       });
       setErrorMessage(null);
     } catch (err) {
-      setErrorMessage("This spot was occupied, please try another.");
+      if (err.response?.data?.message) {
+        setErrorMessage(err.response.data.message);
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
+      return;
+    }
+  }
+
+  async function removeParticipant() {
+    try {
+      const {data: userID} = await api.delete(`/eventParticipation/removeParticipation/${eventID}`);
+      setParticipantData((prevData) => 
+        prevData.filter(participant => participant.userID !== userID)
+      );
+      
+      setErrorMessage(null);
+    } catch (err) {
+      if (err.response?.data?.message) {
+        setErrorMessage(err.response.data.message);
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
       return;
     }
   }
@@ -59,11 +83,21 @@ export default function ParticipationFormation({
   return (
     <>
       <div className="flex justify-center items-center">
-        <button className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
-          Pick Your Spot
-        </button>
+        {isPastEvent ? (
+          <h1 className="bg-gray-500 px-3 py-1.5 text-lg font-semibold text-white">
+            Past Event
+          </h1>
+        ) : (
+          <h1 className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
+            Pick Your Spot
+          </h1>
+        )}
       </div>
-      <div className="mt-2">
+      <div
+        className={`mt-2 ${
+          sportCategory === "Group Sports" ? "h-full overflow-y-auto" : ""
+        }`}
+      >
         <div className="m-2 flex items-center space-x-1">
           {errorMessage && (
             <>
@@ -72,32 +106,23 @@ export default function ParticipationFormation({
             </>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <h3 className="w-full text-right font-semibold text-gray-900 text-base">
-              Team 1
-            </h3>
-            <Team
-              participants={participantData}
-              addParticipant={addParticipant}
-              playerNumber={playerNumber}
-              teamNum={1}
-              eventID={eventID}
-            />
-          </div>
-          <div className="text-left">
-            <h3 className="w-full font-semibold text-gray-900 text-base">
-              Team 2
-            </h3>
-            <Team
-              participants={participantData}
-              addParticipant={addParticipant}
-              playerNumber={playerNumber}
-              teamNum={2}
-              eventID={eventID}
-            />
-          </div>
-        </div>
+        {sportCategory === "Group Sports" ? (
+          <GroupFormation
+            participants={participantData}
+            addParticipant={addParticipant}
+            removeParticipant={removeParticipant}
+            playerNumber={playerNumber}
+            isPastEvent={isPastEvent}
+          />
+        ) : (
+          <TeamFormation
+            participants={participantData}
+            addParticipant={addParticipant}
+            removeParticipant={removeParticipant}
+            playerNumber={playerNumber}
+            isPastEvent={isPastEvent}
+          />
+        )}
       </div>
     </>
   );

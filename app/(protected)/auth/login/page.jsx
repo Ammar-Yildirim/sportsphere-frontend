@@ -11,9 +11,10 @@ import { FaExclamationCircle } from "react-icons/fa";
 
 
 export default function LoginPage(){
-    const {setToken} = useAuth()
-    const router = useRouter()
-    const [errorMessage, setErrorMessage] = useState(null)
+    const {setToken} = useAuth();
+    const {setUserId} = useAuth();
+    const router = useRouter();
+    const [errorMessage, setErrorMessage] = useState(null);
 
     async function handleLogin(formData) {
         const data = Object.fromEntries(formData)
@@ -26,11 +27,12 @@ export default function LoginPage(){
         }
 
         try {
-            const response = await authApi.post('/authenticate', {
+            const {data} = await authApi.post('/authenticate', {
                 ...validatedData.data
             });
 
-            setToken(response.data.token);
+            setToken(data.token);
+            setUserId(data.userId);
             router.push('/dashboard');
         } catch (err) {
             console.error("Error status: ", err);

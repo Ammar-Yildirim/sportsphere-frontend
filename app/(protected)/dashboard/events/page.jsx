@@ -72,8 +72,8 @@ export default function Dashboard() {
       },
       renderCell: (params) => {
         return (
-          <div className="flex justify-between items-center h-full">
-            <span className="w-12 h-6 flex justify-center items-center text-blue-500 rounded-full border-2 border-blue-500 font-bold">
+          <div className="flex space-x-3 items-center h-full">
+            <span className="min-w-10 h-6 flex justify-center items-center text-blue-500 rounded-full border-2 border-blue-500 font-bold">
               <strong>{eventToParticipationCount[params.id] ?? 0}/{params.value}</strong>
             </span>
             <button
