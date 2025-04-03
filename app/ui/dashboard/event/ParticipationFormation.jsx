@@ -3,6 +3,7 @@ import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { FaExclamationCircle } from "react-icons/fa";
 import GroupFormation from "@/app/ui/dashboard/event/GroupFormation";
 import TeamFormation from "./TeamFormation";
+import useAuth from "@/app/hooks/useAuth";
 
 export default function ParticipationFormation({
   eventID,
@@ -13,6 +14,7 @@ export default function ParticipationFormation({
   const [participantData, setParticipantData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useAxiosPrivate();
+  const { userId } = useAuth();
 
   async function addParticipant(team, spot) {
     try {
@@ -50,11 +52,13 @@ export default function ParticipationFormation({
 
   async function removeParticipant() {
     try {
-      const {data: userID} = await api.delete(`/eventParticipation/removeParticipation/${eventID}`);
-      setParticipantData((prevData) => 
-        prevData.filter(participant => participant.userID !== userID)
+      const { data: userID } = await api.delete(
+        `/eventParticipation/removeParticipation/${eventID}`
       );
-      
+      setParticipantData((prevData) =>
+        prevData.filter((participant) => participant.userID !== userID)
+      );
+
       setErrorMessage(null);
     } catch (err) {
       if (err.response?.data?.message) {
@@ -78,7 +82,11 @@ export default function ParticipationFormation({
     }
 
     getParticipationData();
-  }, [errorMessage]);
+  }, [eventID, api]);
+
+  const isUserParticipant = participantData.some(
+    (participant) => participant.userID === userId
+  );
 
   return (
     <>
@@ -87,9 +95,13 @@ export default function ParticipationFormation({
           <h1 className="bg-gray-500 px-3 py-1.5 text-lg font-semibold text-white">
             Past Event
           </h1>
+        ) : isUserParticipant ? (
+          <button className="bg-red-500 px-3 py-1.5 text-lg font-semibold text-white cursor-pointer" onClick={removeParticipant}>
+            Leave Event
+          </button>
         ) : (
           <h1 className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
-            Pick Your Spot
+            Pick a Spot
           </h1>
         )}
       </div>
