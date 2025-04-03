@@ -4,6 +4,7 @@ import { FaExclamationCircle } from "react-icons/fa";
 import GroupFormation from "@/app/ui/dashboard/event/GroupFormation";
 import TeamFormation from "./TeamFormation";
 import useAuth from "@/app/hooks/useAuth";
+import Spinner from "../Spinner";
 
 export default function ParticipationFormation({
   eventID,
@@ -11,6 +12,7 @@ export default function ParticipationFormation({
   sportCategory,
   isPastEvent,
 }) {
+  const [loading, setLoading] = useState(true);
   const [participantData, setParticipantData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useAxiosPrivate();
@@ -72,13 +74,14 @@ export default function ParticipationFormation({
 
   useEffect(() => {
     async function getParticipationData() {
-      const data = await api.get("/eventParticipation/getEventParticipation", {
+      const {data} = await api.get("/eventParticipation/getEventParticipation", {
         params: {
           eventID: eventID,
         },
       });
-      const participantData = data.data;
+      const participantData = data;
       setParticipantData(participantData);
+      setLoading(false);
     }
 
     getParticipationData();
@@ -87,6 +90,10 @@ export default function ParticipationFormation({
   const isUserParticipant = participantData.some(
     (participant) => participant.userID === userId
   );
+
+  if(loading){
+    return <Spinner />;
+  }
 
   return (
     <>

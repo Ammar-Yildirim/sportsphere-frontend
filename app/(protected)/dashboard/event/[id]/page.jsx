@@ -19,13 +19,14 @@ export default function EventPage({ params }) {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [eventData, setEventData] = useState(null);
   const [error, setError] = useState(null);
-  const [isDeleted, setIsDeleted] = useState(false); 
+  const [isDeleted, setIsDeleted] = useState(false);
   const api = useAxiosPrivate();
-  const {userId} = useAuth();
+  const { userId } = useAuth();
   const id = use(params).id;
   const router = useRouter();
-  
-  const isDeleteDisplayed = eventData?.userId === userId && new Date(eventData?.startsAt) > new Date(); 
+
+  const isDeleteDisplayed =
+    eventData?.userId === userId && new Date(eventData?.startsAt) > new Date();
 
   async function deleteEvent() {
     if (
@@ -41,7 +42,7 @@ export default function EventPage({ params }) {
 
     try {
       await api.delete(`/events/${id}`);
-      setIsDeleted(true); 
+      setIsDeleted(true);
       router.push("/dashboard");
     } catch (err) {
       const message = err.response?.data?.message || "Failed to delete event.";
@@ -67,9 +68,12 @@ export default function EventPage({ params }) {
     }
   }, [id, api, isDeleted]);
 
-  
   if (eventLoading || deleteLoading || isDeleted) {
-    return <Spinner />;
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
   }
 
   if (error) {
@@ -88,7 +92,7 @@ export default function EventPage({ params }) {
         <h1 className="text-3xl text-center font-semibold text-gray-900">
           {eventData.title}
         </h1>
-        { isDeleteDisplayed && 
+        {isDeleteDisplayed && (
           <div className="text-center flex items-center justify-center">
             <button
               className="bg-red-500 hover:bg-red-600 active:bg-red-500 px-3 py-1.5 text-lg font-semibold text-white cursor-pointer flex items-center"
@@ -98,7 +102,7 @@ export default function EventPage({ params }) {
               <p className="md:hidden"> Delete Event</p>
             </button>
           </div>
-        }
+        )}
       </div>
       <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto md:space-y-0 w-full pb-3 text-gray-500 space-y-5">
         <div className="shadow-sm border border-gray-100  h-fit">
