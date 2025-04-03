@@ -70,7 +70,7 @@ export default function EventPage({ params }) {
 
   if (eventLoading || deleteLoading || isDeleted) {
     return (
-      <div>
+      <div className="w-full h-full">
         <Spinner />
       </div>
     );

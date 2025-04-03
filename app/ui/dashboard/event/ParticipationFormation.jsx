@@ -74,11 +74,14 @@ export default function ParticipationFormation({
 
   useEffect(() => {
     async function getParticipationData() {
-      const {data} = await api.get("/eventParticipation/getEventParticipation", {
-        params: {
-          eventID: eventID,
-        },
-      });
+      const { data } = await api.get(
+        "/eventParticipation/getEventParticipation",
+        {
+          params: {
+            eventID: eventID,
+          },
+        }
+      );
       const participantData = data;
       setParticipantData(participantData);
       setLoading(false);
@@ -91,8 +94,12 @@ export default function ParticipationFormation({
     (participant) => participant.userID === userId
   );
 
-  if(loading){
-    return <Spinner />;
+  if (loading) {
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
   }
 
   return (
@@ -103,8 +110,11 @@ export default function ParticipationFormation({
             Past Event
           </h1>
         ) : isUserParticipant ? (
-          <button className="bg-red-500 px-3 py-1.5 text-lg font-semibold text-white cursor-pointer" onClick={removeParticipant}>
-            Leave Event
+          <button
+            className="bg-red-500 hover:bg-red-600 active:bg-red-400 px-3 py-1.5 text-lg font-semibold text-white cursor-pointer"
+            onClick={removeParticipant}
+          >
+            Leave
           </button>
         ) : (
           <h1 className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">

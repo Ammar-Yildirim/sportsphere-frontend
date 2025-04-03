@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/app/ui/dashboard/Spinner";
 
 export default function Layout({ children }) {
-  const {token, setToken } = useAuth();
-  const {setUserId} = useAuth();
+  const { token, setToken } = useAuth();
+  const { setUserId } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +19,7 @@ export default function Layout({ children }) {
       console.log(token);
       try {
         if (!token) {
-          const {data} = await authApi.get("/refresh");
+          const { data } = await authApi.get("/refresh");
           setToken(data.token);
           setUserId(data.userId);
           console.log("New Access Token: " + data.token);
@@ -38,7 +38,11 @@ export default function Layout({ children }) {
   }, []);
 
   if (loading) {
-    return <Spinner />
+    return (
+      <div className="w-full h-screen">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
