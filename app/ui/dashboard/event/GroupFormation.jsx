@@ -26,7 +26,7 @@ export default function GroupFormation({
         return (
           <div
             key={spotNumber}
-            className="flex items-center justify-end space-x-1 w-full"
+            className="flex items-center justify-end space-x-0.5 w-full"
           >
             <p>{isOccupied ? participant.userName : "Open Spot"}</p>
             {isOccupied ? (

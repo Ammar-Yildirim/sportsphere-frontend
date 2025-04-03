@@ -9,7 +9,6 @@ import SportSphereLogo from '@/app/ui/sportsphere-logo';
 import { lusitana } from '@/app/ui/fonts';
 import { FaExclamationCircle } from "react-icons/fa";
 
-
 export default function LoginPage(){
     const {setToken} = useAuth();
     const {setUserId} = useAuth();
@@ -17,27 +16,38 @@ export default function LoginPage(){
     const [errorMessage, setErrorMessage] = useState(null);
 
     async function handleLogin(formData) {
-        const data = Object.fromEntries(formData)
-        const validatedData = LoginSchema.safeParse(data);
-    
-        if (!validatedData.success) {
-            console.log(validatedData.error);
-            setErrorMessage("Invalid input! Please check your credentials.");
-            return;
+      const data = Object.fromEntries(formData);
+      const validatedData = LoginSchema.safeParse(data);
+
+      if (!validatedData.success) {
+        console.log(validatedData.error);
+        setErrorMessage("Invalid input! Please check your credentials.");
+        return;
+      }
+
+      try {
+        const { data } = await authApi.post("/authenticate", {
+          ...validatedData.data,
+        });
+
+        setToken(data.token);
+        setUserId(data.userId);
+        router.push("/dashboard");
+      } catch (err) {
+        console.error("Error status: ", err);
+
+        if (!err.response) {
+          setErrorMessage(
+            "Server's are down, you will be redirected to home page. Please try again later"
+          );
+          setTimeout(() => {
+            router.push("/");
+          }, 5000);
+          return;
         }
 
-        try {
-            const {data} = await authApi.post('/authenticate', {
-                ...validatedData.data
-            });
-
-            setToken(data.token);
-            setUserId(data.userId);
-            router.push('/dashboard');
-        } catch (err) {
-            console.error("Error status: ", err);
-            setErrorMessage(err.response.data.message)
-        }
+        setErrorMessage(err.response.data.message);
+      }
     }
 
     return (
@@ -96,7 +106,7 @@ export default function LoginPage(){
                   Log in
                 </button>
 
-                <div className="flex h-8 items-center space-x-1">
+                <div className="flex items-center justify-items-center space-x-1 mt-1">
                   {errorMessage && (
                     <>
                       <FaExclamationCircle  className="text-red-500 h-4 w-4" />

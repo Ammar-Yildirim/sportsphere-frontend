@@ -7,7 +7,7 @@ import {authApi} from '@/app/axiosConfig';
 import {useRouter} from 'next/navigation';
 import SportSphereLogo from '@/app/ui/sportsphere-logo';
 import { lusitana } from '@/app/ui/fonts';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { FaExclamationCircle } from "react-icons/fa";
 
 export default function RegistrationPage(){
     const [errorMessage, setErrorMessage] = useState('')
@@ -33,8 +33,19 @@ export default function RegistrationPage(){
             setUserId(data.userId);
             router.push('/dashboard');
         }catch(err){
-            console.error("Error status: ", err);
-            setErrorMessage(err.response.data.message);
+          console.error("Error status: ", err);
+
+          if (!err.response) {
+            setErrorMessage(
+              "Server's are down, you will be redirected to home page. Please try again later"
+            );
+            setTimeout(() => {
+              router.push("/");
+            }, 5000); 
+            return;
+          }
+  
+          setErrorMessage(err.response.data.message);
        } 
     }
 
@@ -126,10 +137,10 @@ export default function RegistrationPage(){
                   Register
                 </button>
 
-                <div className="flex h-8 items-end space-x-1">
+                <div className="flex items-center justify-items-center space-x-1 mt-1">
                   {errorMessage && (
                     <>
-                      <ExclamationCircleIcon className="text-red-500 h-4 w-4" />
+                      <FaExclamationCircle className="text-red-500 h-4 w-4" />
                       <p className="text-sm text-red-500">{errorMessage}</p>
                     </>
                   )}

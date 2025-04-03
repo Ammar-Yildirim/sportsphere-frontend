@@ -35,7 +35,7 @@ export default function Team({
         return (
           <div
             key={spotNumber}
-            className={clsx("flex items-center space-x-1", justifyClassName)}
+            className={clsx("flex items-center space-x-0.5", justifyClassName)}
           >
             {isLeftTeam && (
               <p className={textClassName}>

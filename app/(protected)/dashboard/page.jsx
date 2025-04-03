@@ -4,9 +4,13 @@ import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { useState } from "react";
 import EventGrid from "@/app/ui/dashboard/EventGrid";
 import EventLineChart from "@/app/ui/dashboard/EventLineChart";
-import { ChevronDownIcon, CalendarIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { GoPlusCircle } from "react-icons/go";
+import { FaRegCalendar } from "react-icons/fa";
+import { IoChevronDownOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
   const api = useAxiosPrivate();
   const [loading, setLoading] = useState({
     registeredUpcomingEventsLoading: true,
@@ -141,7 +145,8 @@ export default function Dashboard() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <div className="mb-2">No upcoming events created</div>
-          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition">
+          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition cursor-pointer"
+          onClick={() => router.push("/dashboard/create")}>
             Create an event
           </button>
         </div>
@@ -159,7 +164,8 @@ export default function Dashboard() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <div className="mb-2">No past events created</div>
-          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition">
+          <button className="px-4 py-2 bg-blue-100 text-blue-600 rounded-md font-medium text-sm hover:bg-blue-200 transition cursor-pointer"
+          onClick={() => router.push("/dashboard/create")}>
             Create an event
           </button>
         </div>
@@ -182,7 +188,8 @@ export default function Dashboard() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <div className="mb-2">No upcoming registered events</div>
-          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition">
+          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition cursor-pointer"
+          onClick={() => router.push("/dashboard/events")}>
             Browse events
           </button>
         </div>
@@ -200,7 +207,8 @@ export default function Dashboard() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <div className="mb-2">No past registered events</div>
-          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition">
+          <button className="px-4 py-2 bg-green-100 text-green-600 rounded-md font-medium text-sm hover:bg-green-200 transition cursor-pointer"
+          onClick={() => router.push("/dashboard/events")}>
             Browse events
           </button>
         </div>
@@ -213,7 +221,7 @@ export default function Dashboard() {
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <h1 className="text-left w-full text-2xl font-bold text-gray-800 mb-4 flex items-center">
           <span className="bg-blue-100 p-2 rounded-lg mr-3 text-blue-600">
-            <CalendarIcon className="w-6 h-6" />
+            <FaRegCalendar className="w-6 h-6" />
           </span>
           2025 Monthly Event Participation
         </h1>
@@ -229,11 +237,11 @@ export default function Dashboard() {
             className="w-full flex items-center justify-between text-left text-xl font-semibold p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white focus:outline-none cursor-pointer"
           >
             <div className="flex items-center">
-              <PlusCircleIcon className="w-6 h-6 mr-2" />
+              <GoPlusCircle className="w-6 h-6 mr-2" />
               <span>Created Events</span>
             </div>
-            <ChevronDownIcon
-              className={`w-5 h-5 transition-transform duration-200 ${
+            <IoChevronDownOutline
+              className={`w-6 h-6 transition-transform duration-200 ${
                 showCreatedEvents ? "transform rotate-180" : ""
               }`}
             />
@@ -277,11 +285,11 @@ export default function Dashboard() {
             className="w-full flex items-center justify-between text-left text-xl font-semibold p-4 bg-gradient-to-r from-green-500 to-green-600 text-white focus:outline-none cursor-pointer"
           >
             <div className="flex items-center">
-              <CalendarIcon className="w-6 h-6 mr-2" />
+              <FaRegCalendar className="w-6 h-5 mr-2" />
               <span>Registered Events</span>
             </div>
-            <ChevronDownIcon
-              className={`w-5 h-5 transition-transform duration-200 ${
+            <IoChevronDownOutline
+              className={`w-6 h-6 transition-transform duration-200 ${
                 showRegisteredEvents ? "transform rotate-180" : ""
               }`}
             />

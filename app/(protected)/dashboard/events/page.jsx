@@ -115,7 +115,7 @@ export default function Dashboard() {
         const params = position
           ? { refLat: position.coords.latitude, refLon: position.coords.longitude }
           : {};
-        const { data : events } = await api.get("/events/getUpcomingEvents", { params });
+        const { data : events } = await api.get("/events/upcoming", { params });
 
         const eventIDs = events.map(x => x.id);
         const {data : participationCounts} = await api.post("/eventParticipation/getParticipationCounts", eventIDs);

@@ -27,7 +27,7 @@ const useAxiosPrivate = () => {
             async (error) => {
                 const originalRequest = error.config;
                 
-                if(error.response.status === 403 || error.response.status === 401){
+                if(error.response.status === 401){
                     console.log("access token failed, trying refreshing")
                     try{
                         const newAccessToken = await authApi.get('/refresh');
