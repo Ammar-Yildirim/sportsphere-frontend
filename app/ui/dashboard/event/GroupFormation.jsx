@@ -1,15 +1,12 @@
-import useAuth from "@/app/hooks/useAuth";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function GroupFormation({
   participants,
   addParticipant,
-  removeParticipant,
   playerNumber,
   isPastEvent,
 }) {
-  const { userId } = useAuth();
   const teamParticipants = participants.sort((a, b) => a.spot - b.spot);
   const occupiedSpots = new Map(
     teamParticipants.map((participant) => [participant.spot, participant])
@@ -21,7 +18,6 @@ export default function GroupFormation({
         const spotNumber = index + 1;
         const participant = occupiedSpots.get(spotNumber);
         const isOccupied = !!participant;
-        const isCurrentUserSpot = isOccupied && participant.userID === userId;
 
         return (
           <div
@@ -30,10 +26,7 @@ export default function GroupFormation({
           >
             <p>{isOccupied ? participant.userName : "Open Spot"}</p>
             {isOccupied ? (
-              <UserCircleIcon 
-                className={`w-12 ${isCurrentUserSpot && !isPastEvent ? 'hover:text-red-600 cursor-pointer' : ''}`}
-                onClick={isCurrentUserSpot && !isPastEvent ? () => removeParticipant() : undefined}
-              />
+              <UserCircleIcon className="w-12"/>
             ) : (
               <button
                 className={`${

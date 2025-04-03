@@ -122,7 +122,6 @@ export default function ParticipationFormation({
           <GroupFormation
             participants={participantData}
             addParticipant={addParticipant}
-            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />
@@ -130,7 +129,6 @@ export default function ParticipationFormation({
           <TeamFormation
             participants={participantData}
             addParticipant={addParticipant}
-            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />

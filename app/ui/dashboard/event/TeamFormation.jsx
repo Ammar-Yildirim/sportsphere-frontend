@@ -5,7 +5,6 @@ export default function TeamFormation({
   addParticipant,
   playerNumber,
   isPastEvent,
-  removeParticipant
 }) {
   return (
     <div className="grid grid-cols-2 gap-3">
@@ -16,7 +15,6 @@ export default function TeamFormation({
         <Team
           participants={participants}
           addParticipant={addParticipant}
-          removeParticipant={removeParticipant}
           playerNumber={playerNumber}
           teamNum={1}
           isPastEvent={isPastEvent}
@@ -27,7 +25,6 @@ export default function TeamFormation({
         <Team
           participants={participants}
           addParticipant={addParticipant}
-          removeParticipant={removeParticipant}
           playerNumber={playerNumber}
           teamNum={2}
           isPastEvent={isPastEvent}
