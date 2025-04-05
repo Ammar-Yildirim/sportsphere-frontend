@@ -13,17 +13,19 @@ export default function LoginPage(){
     const {setToken} = useAuth();
     const {setUserId} = useAuth();
     const router = useRouter();
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorMessages, setErrorMessages] = useState([]);
 
     async function handleLogin(formData) {
       const data = Object.fromEntries(formData);
       const validatedData = LoginSchema.safeParse(data);
 
       if (!validatedData.success) {
-        console.log(validatedData.error);
-        setErrorMessage("Invalid input! Please check your credentials.");
+        const formattedErrors = validatedData.error.errors.map(error => error.message);
+        setErrorMessages(formattedErrors);
         return;
       }
+
+      setErrorMessages([]);
 
       try {
         const { data } = await authApi.post("/authenticate", {
@@ -34,19 +36,17 @@ export default function LoginPage(){
         setUserId(data.userId);
         router.push("/dashboard");
       } catch (err) {
-        console.error("Error status: ", err);
-
         if (!err.response) {
-          setErrorMessage(
+          setErrorMessages([
             "Server's are down, you will be redirected to home page. Please try again later"
-          );
+          ]);
           setTimeout(() => {
             router.push("/");
           }, 5000);
           return;
         }
 
-        setErrorMessage(err.response.data.message);
+        setErrorMessages([err.response.data.message]);
       }
     }
 
@@ -106,12 +106,16 @@ export default function LoginPage(){
                   Log in
                 </button>
 
-                <div className="flex items-center justify-items-center space-x-1 mt-1">
-                  {errorMessage && (
-                    <>
-                      <FaExclamationCircle  className="text-red-500 h-4 w-4" />
-                      <p className="text-sm text-red-500">{errorMessage}</p>
-                    </>
+                <div className="mt-3">
+                  {errorMessages.length > 0 && (
+                    <div className="bg-red-50 p-3 rounded-md border border-red-200">
+                      {errorMessages.map((error, index) => (
+                        <div key={index} className="flex items-center space-x-1 mb-1">
+                          <FaExclamationCircle className="text-red-500 h-4 w-4 flex-shrink-0" />
+                          <p className="text-sm text-red-500">{error}</p>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

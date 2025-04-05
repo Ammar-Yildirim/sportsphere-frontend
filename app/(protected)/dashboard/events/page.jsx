@@ -57,6 +57,7 @@ export default function Dashboard() {
       flex: 0.5,
       minWidth: 70,
       resizable: false,
+      filterable: false
     },
     {
       field: "title",
@@ -64,6 +65,7 @@ export default function Dashboard() {
       flex: 2,
       minWidth: 150,
       resizable: false,
+      sortable: false
     },
     {
       field: "Spots",

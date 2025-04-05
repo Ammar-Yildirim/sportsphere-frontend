@@ -44,7 +44,6 @@ export default function CreateForm({ coordinates, setCoordinates }) {
   });
 
   const updateFormField = (field, value) => {
-    console.log(`${field} ${value}`)
     setFormState((prev) => ({
       ...prev,
       [field]: value,
@@ -332,7 +331,7 @@ export default function CreateForm({ coordinates, setCoordinates }) {
             <abbr title="required" className="cursor-help">
               *
             </abbr>{" "}
-            Players per Team
+            {formState.sport.category === "Group Sports" ? "Player Number" : "Players per Team"}
           </label>
           {formState.sport.category === "Group Sports" && (
             <input
