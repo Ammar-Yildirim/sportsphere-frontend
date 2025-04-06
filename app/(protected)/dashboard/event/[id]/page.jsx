@@ -13,6 +13,8 @@ import ParticipationFormation from "@/app/ui/dashboard/event/ParticipationFormat
 import Spinner from "@/app/ui/dashboard/Spinner";
 import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
+import { FaInfoCircle, FaComments } from "react-icons/fa";
+import CommentSection from "@/app/ui/dashboard/event/CommentSection";
 
 export default function EventPage({ params }) {
   const [eventLoading, setEventLoading] = useState(true);
@@ -20,6 +22,7 @@ export default function EventPage({ params }) {
   const [eventData, setEventData] = useState(null);
   const [error, setError] = useState(null);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [activeTab, setActiveTab] = useState("details"); // 'details' or 'comments'
   const api = useAxiosPrivate();
   const { userId } = useAuth();
   const id = use(params).id;
@@ -29,11 +32,7 @@ export default function EventPage({ params }) {
     eventData?.userId === userId && new Date(eventData?.startsAt) > new Date();
 
   async function deleteEvent() {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this event? This action cannot be undone."
-      )
-    ) {
+    if (!window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
       return;
     }
 
@@ -87,8 +86,8 @@ export default function EventPage({ params }) {
   }
 
   return (
-    <div className="md:p-6 px-6 w-full max-h-screen text-sm">
-      <div className="md:h-1/12 md:flex md:justify-between md:items-center my-2.5">
+    <div className="md:flex md:flex-col md:p-6 px-6 w-full h-screen text-sm">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center my-2.5">
         <h1 className="text-3xl text-center font-semibold text-gray-900">
           {eventData.title}
         </h1>
@@ -104,78 +103,113 @@ export default function EventPage({ params }) {
           </div>
         )}
       </div>
-      <div className="md:h-11/12 md:grid md:grid-cols-3 md:space-x-5 md:overflow-y-auto md:space-y-0 w-full pb-3 text-gray-500 space-y-5">
-        <div className="shadow-sm border border-gray-100  h-fit">
-          <h3 className="p-2 bg-gray-50 font-semibold text-gray-900">
-            When and Where
-          </h3>
-          <div className="p-3 flex items-center space-x-1  border-b border-b-gray-200">
-            <div className="w-6 h-6">
-              <FaRegCalendar className="w-full h-full" />
-            </div>
-            <p>{eventData.date}</p>
-          </div>
-          <div className="p-3 flex items-center space-x-1 text-gray-500 border-b border-b-gray-200">
-            <div className="w-6 h-6">
-              <FaRegClock className="w-full h-full" />
-            </div>
-            <p>{eventData.time}</p>
-          </div>
-          <div className="p-3 flex items-center space-x-1 text-gray-500 border-b border-b-gray-200">
-            <div className="w-6 h-6">
-              <FaLocationDot className="w-full h-full" />
-            </div>
-            <p>{eventData.locationDTO.name}</p>
-          </div>
-          <div className="w-full h-80 md:h-64">
-            <LocationMap
-              coordinates={{
-                lat: eventData.locationDTO.latitude,
-                lng: eventData.locationDTO.longitude,
-              }}
-              zoom={16}
-            />
-          </div>
-        </div>
-        <div
-          className={`p-2 shadow-sm border border-gray-100 ${
-            eventData.sport.category === "Group Sports"
-              ? "h-full flex flex-col overflow-y-hidden"
-              : "h-fit"
+
+      {/* Tab navigation */}
+      <div className="flex mb-4 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab("details")}
+          className={`flex items-center px-4 py-2 mr-2 font-medium transition-colors duration-200 ${
+            activeTab === "details"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-blue-600"
           }`}
         >
-          <ParticipationFormation
-            eventID={id}
-            playerNumber={eventData.playerNumber}
-            sportCategory={eventData.sport.category}
-            isPastEvent={new Date(eventData.startsAt) < new Date()}
-          />
-        </div>
-        <div className="shadow-sm border border-gray-100 h-fit">
-          <div className="p-5 flex items-center space-x-2 text-gray-500 ">
-            <div className="w-6 h-6">{getSportIcon(eventData.sport.name)}</div>
-            <div>
-              <p className="text-gray-700 font-semibold">
-                {eventData.sport.name}
-              </p>
-              <p className="text-sm">{eventData.sport.category}</p>
-            </div>
-          </div>
-          <div className="p-5 flex items-center space-x-2 text-gray-500 bg-gray-100">
-            <FaUser className="w-6 h-6" />
-            <div>
-              <p className="text-gray-700 font-semibold">
-                {eventData.createdBy}
-              </p>
-              <p className="text-sm">Game Organizer</p>
-            </div>
-          </div>
-          <div className="p-3">
-            <h2 className="text-xl mb-2">Description</h2>
-            <p className="overflow-y-auto">{eventData.description}</p>
-          </div>
-        </div>
+          <FaInfoCircle className="mr-2" />
+          Event Details
+        </button>
+        <button
+          onClick={() => setActiveTab("comments")}
+          className={`flex items-center px-4 py-2 font-medium transition-colors duration-200 ${
+            activeTab === "comments"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-blue-600"
+          }`}
+        >
+          <FaComments className="mr-2" />
+          Comments
+        </button>
       </div>
+
+      {/* Comments Section (displayed above event details) */}
+      {activeTab === "comments" && <CommentSection eventId={id} api={api}/>}
+
+      {/* Event Details Section */}
+      {activeTab === "details" && (
+        <div className="md:flex-grow grid grid-cols-1 gap-5 md:grid-cols-3 md:overflow-y-auto md:space-y-0 w-full pb-3 text-gray-500">
+          <div className="shadow-sm border border-gray-100 h-fit">
+            <h3 className="p-2 bg-gray-50 font-semibold text-gray-900">
+              When and Where
+            </h3>
+            <div className="p-3 flex items-center space-x-1 border-b border-b-gray-200">
+              <div className="w-6 h-6">
+                <FaRegCalendar className="w-full h-full" />
+              </div>
+              <p>{eventData.date}</p>
+            </div>
+            <div className="p-3 flex items-center space-x-1 text-gray-500 border-b border-b-gray-200">
+              <div className="w-6 h-6">
+                <FaRegClock className="w-full h-full" />
+              </div>
+              <p>{eventData.time}</p>
+            </div>
+            <div className="p-3 flex items-center space-x-1 text-gray-500 border-b border-b-gray-200">
+              <div className="w-6 h-6">
+                <FaLocationDot className="w-full h-full" />
+              </div>
+              <p>{eventData.locationDTO.name}</p>
+            </div>
+            <div className="w-full h-80 md:h-56">
+              <LocationMap
+                coordinates={{
+                  lat: eventData.locationDTO.latitude,
+                  lng: eventData.locationDTO.longitude,
+                }}
+                zoom={16}
+              />
+            </div>
+          </div>
+          <div
+            className={`p-2 shadow-sm border border-gray-100 ${
+              eventData.sport.category === "Group Sports"
+                ? "h-full flex flex-col overflow-y-hidden"
+                : "h-fit"
+            }`}
+          >
+            <ParticipationFormation
+              eventID={id}
+              playerNumber={eventData.playerNumber}
+              sportCategory={eventData.sport.category}
+              isPastEvent={new Date(eventData.startsAt) < new Date()}
+            />
+          </div>
+          <div className="shadow-sm border border-gray-100 h-fit">
+            <div className="p-5 flex items-center space-x-2 text-gray-500">
+              <div className="w-6 h-6">
+                {getSportIcon(eventData.sport.name)}
+              </div>
+              <div>
+                <p className="text-gray-700 font-semibold">
+                  {eventData.sport.name}
+                </p>
+                <p className="text-sm">{eventData.sport.category}</p>
+              </div>
+            </div>
+            <div className="p-5 flex items-center space-x-2 text-gray-500 bg-gray-100">
+              <FaUser className="w-6 h-6" />
+              <div>
+                <p className="text-gray-700 font-semibold">
+                  {eventData.createdBy}
+                </p>
+                <p className="text-sm">Game Organizer</p>
+              </div>
+            </div>
+            <div className="p-3">
+              <h2 className="text-xl mb-2">Description</h2>
+              <p className="overflow-y-auto">{eventData.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
