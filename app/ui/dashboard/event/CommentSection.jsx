@@ -16,7 +16,7 @@ export default function CommentSection({ eventId }) {
       try {
         setIsLoading(true);
         const { data } = await api.get(`/events/${eventId}/comments`);
-        setComments(data); // Update state with fetched comments
+        setComments(data); 
         setError(null);
       } catch (err) {
         console.error("Error fetching comments:", err);

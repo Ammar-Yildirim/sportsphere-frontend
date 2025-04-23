@@ -22,7 +22,7 @@ export default function EventPage({ params }) {
   const [eventData, setEventData] = useState(null);
   const [error, setError] = useState(null);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [activeTab, setActiveTab] = useState("details"); // 'details' or 'comments'
+  const [activeTab, setActiveTab] = useState("details"); 
   const api = useAxiosPrivate();
   const { userId } = useAuth();
   const id = use(params).id;
@@ -104,7 +104,6 @@ export default function EventPage({ params }) {
         )}
       </div>
 
-      {/* Tab navigation */}
       <div className="flex mb-4 border-b border-gray-200">
         <button
           onClick={() => setActiveTab("details")}
@@ -130,10 +129,8 @@ export default function EventPage({ params }) {
         </button>
       </div>
 
-      {/* Comments Section (displayed above event details) */}
       {activeTab === "comments" && <CommentSection eventId={id} api={api}/>}
 
-      {/* Event Details Section */}
       {activeTab === "details" && (
         <div className="md:flex-grow grid grid-cols-1 gap-5 md:grid-cols-3 md:overflow-y-auto md:space-y-0 w-full pb-3 text-gray-500">
           <div className="shadow-sm border border-gray-100 h-fit">

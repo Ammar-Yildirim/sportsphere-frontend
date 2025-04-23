@@ -21,7 +21,7 @@ export default function ParticipationFormation({
   async function addParticipant(team, spot) {
     try {
       const { data: addedUser } = await api.post(
-        "/eventParticipation/addParticipation",
+        `/events/${eventID}/participation`,
         {
           eventID: eventID,
           team: team,
@@ -55,7 +55,7 @@ export default function ParticipationFormation({
   async function removeParticipant() {
     try {
       const { data: userID } = await api.delete(
-        `/eventParticipation/removeParticipation/${eventID}`
+        `/events/${eventID}/participation`
       );
       setParticipantData((prevData) =>
         prevData.filter((participant) => participant.userID !== userID)
@@ -74,14 +74,7 @@ export default function ParticipationFormation({
 
   useEffect(() => {
     async function getParticipationData() {
-      const { data } = await api.get(
-        "/eventParticipation/getEventParticipation",
-        {
-          params: {
-            eventID: eventID,
-          },
-        }
-      );
+      const { data } = await api.get(`events/${eventID}/participation`);
       const participantData = data;
       setParticipantData(participantData);
       setLoading(false);
