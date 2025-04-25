@@ -81,7 +81,7 @@ export default function CommentSection({ eventId }) {
   };
 
   return (
-    <div className="md:flex-grow md:overflow-auto bg-neutral-50 p-4 pt-0">
+    <div className="md:flex-grow md:overflow-auto  p-4 pt-0">
       {/* Comment Input */}
       <div className="mb-6">
         <form onSubmit={handleSubmit}>
