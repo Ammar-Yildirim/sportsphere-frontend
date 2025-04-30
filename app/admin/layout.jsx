@@ -26,13 +26,11 @@ function AdminLayoutContent({ children }) {
         if (!adminToken) {
           const { data } = await adminAuthApi.get("/refresh");
           setAdminToken(data.token);
-          console.log("New Admin Access Token generated");
           setLoading(false);
         } else {
           setLoading(false);
         }
       } catch (err) {
-        console.log("No ADMIN ACCESS or REFRESH token present");
         router.push("/admin/login");
       }
     }

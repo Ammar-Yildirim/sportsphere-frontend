@@ -9,7 +9,6 @@ const useAxiosPrivate = () => {
     const {token, setToken} = useAuth();
 
     useEffect( () => {
-        console.log("setting interceptors")
         const requestInterceptor = axiosPrivate.interceptors.request.use(
             config => {
                 config.headers.Authorization = 
@@ -28,7 +27,6 @@ const useAxiosPrivate = () => {
                 const originalRequest = error.config;
                 
                 if(error.response.status === 401){
-                    console.log("access token failed, trying refreshing")
                     try{
                         const newAccessToken = await authApi.get('/refresh');
                         setToken(newAccessToken.data.token);
@@ -37,7 +35,6 @@ const useAxiosPrivate = () => {
                         
                         return axiosPrivate(originalRequest)
                     } catch (err){
-                        console.log("ACCESS and REFRESH token failed, directing to login")
                         setToken(null)
                         router.push('/auth/login')
                     }
@@ -47,11 +44,9 @@ const useAxiosPrivate = () => {
             }
         )
 
-        console.log("interceptors set")
         return () => {
             axiosPrivate.interceptors.request.eject(requestInterceptor);
             axiosPrivate.interceptors.response.eject(responseInterceptor);
-            console.log("removing interceptors")
         }
     }, [token])
 

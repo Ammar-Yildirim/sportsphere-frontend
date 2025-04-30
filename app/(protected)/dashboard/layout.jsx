@@ -16,20 +16,17 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     async function checkAuth() {
-      console.log(token);
       try {
         if (!token) {
           const { data } = await authApi.get("/refresh");
           setToken(data.token);
           setUserId(data.userId);
-          console.log("New Access Token: " + data.token);
           setLoading(false);
         } else {
           setLoading(false);
         }
       } catch (err) {
         console.log(err);
-        console.log("No ACCESS or REFRESH token present");
         router.push("/auth/login");
       }
     }

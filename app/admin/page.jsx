@@ -1,4 +1,3 @@
-// app/admin/page.jsx
 'use client'
 
 import { useRouter } from 'next/navigation';

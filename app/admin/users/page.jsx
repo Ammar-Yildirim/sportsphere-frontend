@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
       renderHeader: (params) => (
         <div className="flex items-center gap-2">
           <FaUser className="w-8" />
-          <p className="font-bold">Username</p>
+          <p className="font-bold">Full Name</p>
         </div>
       ),
       renderCell: (params) => (
