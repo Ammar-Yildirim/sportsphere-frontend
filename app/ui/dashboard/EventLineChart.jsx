@@ -49,6 +49,9 @@ export default function EventLineChart() {
             { data: monthlyParticipationData, label: 'All Events' }
         ]}
         xAxis={[{ scaleType: 'point', data: xLabels }]}
+        yAxis={[{
+            valueFormatter: (value) => Number.isInteger(value) ? value.toString() : ''
+          }]}
         />
     </div>
   );

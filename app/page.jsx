@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 export default function Home() {
   return (
-    <>
+    <div>
       <header>
         <nav className="h-16 flex justify-between items-center px-5 md:px-15 md:h-20">
           <SportSphereLogo />
@@ -134,6 +134,6 @@ export default function Home() {
       <footer className="bg-gray-900 p-2 text-white text-center">
         2025 © SportSphere, Ltd. All rights reserved
       </footer>
-    </>
+    </div>
   );
 }

@@ -57,6 +57,7 @@ export default function Dashboard() {
       flex: 0.5,
       minWidth: 70,
       resizable: false,
+      filterable: false
     },
     {
       field: "title",
@@ -64,6 +65,7 @@ export default function Dashboard() {
       flex: 2,
       minWidth: 150,
       resizable: false,
+      sortable: false
     },
     {
       field: "Spots",
@@ -115,7 +117,7 @@ export default function Dashboard() {
         const params = position
           ? { refLat: position.coords.latitude, refLon: position.coords.longitude }
           : {};
-        const { data : events } = await api.get("/events/getUpcomingEvents", { params });
+        const { data : events } = await api.get("/events/upcoming", { params });
 
         const eventIDs = events.map(x => x.id);
         const {data : participationCounts} = await api.post("/eventParticipation/getParticipationCounts", eventIDs);

@@ -1,21 +1,20 @@
 import { z } from "zod";
 
 export const LoginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string(),
 });
 
 export const RegisterSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  email: z.string().email(),
-  password: z.string(),
-  // .min(6, "Password must be at least 6 characters long")
-  // .max(14, "Password cannot exceed 14 characters")
-  // .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-  // .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-  // .regex(/[0-9]/, "Password must contain at least one number")
-  // .regex(/[\W_]/, "Password must contain at least one special character")
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string()
+  .min(6, "Password must be at least 6 characters long")
+  .max(14, "Password cannot exceed 14 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number")
 });
 
 const sportSchema = z.object({
@@ -36,7 +35,7 @@ const sportSchema = z.object({
 });
 
 const locationSchema = z.object({
-  name: z.string().min(1, "Empty location is not allowed!"),
+  name: z.string().min(1, "Please select a location!"),
   latitude: z.number(),
   longitude: z.number(),
   formattedAddress: z.string().nonempty(),
@@ -47,19 +46,24 @@ const locationSchema = z.object({
 export const createSchema = z
   .object({
     sport: sportSchema,
-    startsAt: z
-      .string()
-      .regex(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
-        "Invalid datetime format (YYYY-MM-DDTHH:mm:ss.sssZ)"
-      )
-      .refine((dateString) => {
-        const startsAtDate = new Date(dateString);
-        const now = new Date();
-        return startsAtDate > now;
-      }, {
-        message: "Event start time must be in the future",
-      }),
+    startsAt: z.preprocess(
+      (val) => val === null || val === "" ? undefined : val,
+      z.string({
+        required_error: "Please select a starting time!",
+        invalid_type_error: "Please select a starting time!"
+      })
+        .regex(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+          "Invalid datetime format (YYYY-MM-DDTHH:mm:ss.sssZ)"
+        )
+        .refine((dateString) => {
+          const startsAtDate = new Date(dateString);
+          const now = new Date();
+          return startsAtDate > now;
+        }, {
+          message: "Event start time must be in the future",
+        })
+    ),
     title: z.string().max(50, "Title must be at most 50 characters"),
     locationDTO: locationSchema,
     description: z

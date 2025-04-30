@@ -1,17 +1,14 @@
 import { clsx } from "clsx";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import useAuth from "@/app/hooks/useAuth";
 
 export default function Team({
   participants,
   addParticipant,
-  removeParticipant,
   playerNumber,
   teamNum,
   isPastEvent,
 }) {
-  const { userId } = useAuth();
   const teamParticipants = participants
     .filter((participant) => participant.team === teamNum)
     .sort((a, b) => a.spot - b.spot);
@@ -30,12 +27,11 @@ export default function Team({
         const spotNumber = index + 1;
         const participant = occupiedSpots.get(spotNumber);
         const isOccupied = !!participant;
-        const isCurrentUserSpot = isOccupied && participant.userID === userId;
 
         return (
           <div
             key={spotNumber}
-            className={clsx("flex items-center space-x-1", justifyClassName)}
+            className={clsx("flex items-center space-x-0.5", justifyClassName)}
           >
             {isLeftTeam && (
               <p className={textClassName}>
@@ -45,12 +41,7 @@ export default function Team({
 
             {isOccupied ? (
               <UserCircleIcon
-                className={`w-12 ${
-                  isCurrentUserSpot && !isPastEvent ? "hover:text-red-600 cursor-pointer" : ""
-                }`}
-                onClick={
-                  isCurrentUserSpot && !isPastEvent ? () => removeParticipant() : undefined
-                }
+                className="w-12"
               />
             ) : (
               <button

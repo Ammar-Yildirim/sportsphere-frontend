@@ -7,10 +7,10 @@ import {authApi} from '@/app/axiosConfig';
 import {useRouter} from 'next/navigation';
 import SportSphereLogo from '@/app/ui/sportsphere-logo';
 import { lusitana } from '@/app/ui/fonts';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { FaExclamationCircle } from "react-icons/fa";
 
 export default function RegistrationPage(){
-    const [errorMessage, setErrorMessage] = useState('')
+    const [errorMessages, setErrorMessages] = useState([])
     const {setToken} = useAuth();
     const {setUserId} = useAuth();
     const router = useRouter();
@@ -20,10 +20,12 @@ export default function RegistrationPage(){
         const validatedData = RegisterSchema.safeParse(data);
 
         if(!validatedData.success){
-            console.log(validatedData.error);
-            setErrorMessage("Invalid input! Please check your credentials")
+            const formattedErrors = validatedData.error.errors.map(error => error.message);
+            setErrorMessages(formattedErrors);
             return;
         }
+
+        setErrorMessages([]);
 
         try{
             const {data} = await authApi.post('/register', {
@@ -33,8 +35,19 @@ export default function RegistrationPage(){
             setUserId(data.userId);
             router.push('/dashboard');
         }catch(err){
-            console.error("Error status: ", err);
-            setErrorMessage(err.response.data.message);
+          console.error("Error status: ", err);
+
+          if (!err.response) {
+            setErrorMessages([
+              "Server's are down, you will be redirected to home page. Please try again later"
+            ]);
+            setTimeout(() => {
+              router.push("/");
+            }, 5000); 
+            return;
+          }
+  
+          setErrorMessages([err.response.data.message]);
        } 
     }
 
@@ -126,12 +139,16 @@ export default function RegistrationPage(){
                   Register
                 </button>
 
-                <div className="flex h-8 items-end space-x-1">
-                  {errorMessage && (
-                    <>
-                      <ExclamationCircleIcon className="text-red-500 h-4 w-4" />
-                      <p className="text-sm text-red-500">{errorMessage}</p>
-                    </>
+                <div className="mt-3">
+                  {errorMessages.length > 0 && (
+                    <div className="bg-red-50 p-3 rounded-md border border-red-200">
+                      {errorMessages.map((error, index) => (
+                        <div key={index} className="flex items-center space-x-1 mb-1">
+                          <FaExclamationCircle className="text-red-500 h-4 w-4 flex-shrink-0" />
+                          <p className="text-sm text-red-500">{error}</p>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

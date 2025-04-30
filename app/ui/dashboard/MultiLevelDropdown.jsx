@@ -35,7 +35,6 @@ const MultilevelDropdown = ({ selectedSport, setSelectedSport }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log(`Selected sport: ${category} ${sport}`);
     setSelectedSport({
         category : category,
         name : sport
@@ -74,7 +73,6 @@ const MultilevelDropdown = ({ selectedSport, setSelectedSport }) => {
           <ul className="py-1">
             {Object.keys(menuData).map((category) => (
               <li key={category} className="relative">
-                {/* Category item */}
                 <button
                   type="button"
                   onClick={(e) => handleCategoryClick(e,category)}

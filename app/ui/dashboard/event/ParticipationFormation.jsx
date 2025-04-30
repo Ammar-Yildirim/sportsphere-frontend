@@ -3,6 +3,8 @@ import useAxiosPrivate from "@/app/hooks/useAxiosPrivate";
 import { FaExclamationCircle } from "react-icons/fa";
 import GroupFormation from "@/app/ui/dashboard/event/GroupFormation";
 import TeamFormation from "./TeamFormation";
+import useAuth from "@/app/hooks/useAuth";
+import Spinner from "../Spinner";
 
 export default function ParticipationFormation({
   eventID,
@@ -10,14 +12,16 @@ export default function ParticipationFormation({
   sportCategory,
   isPastEvent,
 }) {
+  const [loading, setLoading] = useState(true);
   const [participantData, setParticipantData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useAxiosPrivate();
+  const { userId } = useAuth();
 
   async function addParticipant(team, spot) {
     try {
       const { data: addedUser } = await api.post(
-        "/eventParticipation/addParticipation",
+        `/events/${eventID}/participation`,
         {
           eventID: eventID,
           team: team,
@@ -50,11 +54,13 @@ export default function ParticipationFormation({
 
   async function removeParticipant() {
     try {
-      const {data: userID} = await api.delete(`/eventParticipation/removeParticipation/${eventID}`);
-      setParticipantData((prevData) => 
-        prevData.filter(participant => participant.userID !== userID)
+      const { data: userID } = await api.delete(
+        `/events/${eventID}/participation`
       );
-      
+      setParticipantData((prevData) =>
+        prevData.filter((participant) => participant.userID !== userID)
+      );
+
       setErrorMessage(null);
     } catch (err) {
       if (err.response?.data?.message) {
@@ -68,17 +74,26 @@ export default function ParticipationFormation({
 
   useEffect(() => {
     async function getParticipationData() {
-      const data = await api.get("/eventParticipation/getEventParticipation", {
-        params: {
-          eventID: eventID,
-        },
-      });
-      const participantData = data.data;
+      const { data } = await api.get(`events/${eventID}/participation`);
+      const participantData = data;
       setParticipantData(participantData);
+      setLoading(false);
     }
 
     getParticipationData();
-  }, [errorMessage]);
+  }, [eventID, api]);
+
+  const isUserParticipant = participantData.some(
+    (participant) => participant.userID === userId
+  );
+
+  if (loading) {
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -87,9 +102,16 @@ export default function ParticipationFormation({
           <h1 className="bg-gray-500 px-3 py-1.5 text-lg font-semibold text-white">
             Past Event
           </h1>
+        ) : isUserParticipant ? (
+          <button
+            className="bg-red-500 hover:bg-red-600 active:bg-red-400 px-3 py-1.5 text-lg font-semibold text-white cursor-pointer"
+            onClick={removeParticipant}
+          >
+            Leave
+          </button>
         ) : (
           <h1 className="bg-blue-500 px-3 py-1.5 text-lg font-semibold text-white">
-            Pick Your Spot
+            Pick a Spot
           </h1>
         )}
       </div>
@@ -110,7 +132,6 @@ export default function ParticipationFormation({
           <GroupFormation
             participants={participantData}
             addParticipant={addParticipant}
-            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />
@@ -118,7 +139,6 @@ export default function ParticipationFormation({
           <TeamFormation
             participants={participantData}
             addParticipant={addParticipant}
-            removeParticipant={removeParticipant}
             playerNumber={playerNumber}
             isPastEvent={isPastEvent}
           />

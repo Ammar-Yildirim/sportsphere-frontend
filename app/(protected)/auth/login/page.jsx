@@ -9,35 +9,45 @@ import SportSphereLogo from '@/app/ui/sportsphere-logo';
 import { lusitana } from '@/app/ui/fonts';
 import { FaExclamationCircle } from "react-icons/fa";
 
-
 export default function LoginPage(){
     const {setToken} = useAuth();
     const {setUserId} = useAuth();
     const router = useRouter();
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [errorMessages, setErrorMessages] = useState([]);
 
     async function handleLogin(formData) {
-        const data = Object.fromEntries(formData)
-        const validatedData = LoginSchema.safeParse(data);
-    
-        if (!validatedData.success) {
-            console.log(validatedData.error);
-            setErrorMessage("Invalid input! Please check your credentials.");
-            return;
+      const data = Object.fromEntries(formData);
+      const validatedData = LoginSchema.safeParse(data);
+
+      if (!validatedData.success) {
+        const formattedErrors = validatedData.error.errors.map(error => error.message);
+        setErrorMessages(formattedErrors);
+        return;
+      }
+
+      setErrorMessages([]);
+
+      try {
+        const { data } = await authApi.post("/authenticate", {
+          ...validatedData.data,
+        });
+
+        setToken(data.token);
+        setUserId(data.userId);
+        router.push("/dashboard");
+      } catch (err) {
+        if (!err.response) {
+          setErrorMessages([
+            "Server's are down, you will be redirected to home page. Please try again later"
+          ]);
+          setTimeout(() => {
+            router.push("/");
+          }, 5000);
+          return;
         }
 
-        try {
-            const {data} = await authApi.post('/authenticate', {
-                ...validatedData.data
-            });
-
-            setToken(data.token);
-            setUserId(data.userId);
-            router.push('/dashboard');
-        } catch (err) {
-            console.error("Error status: ", err);
-            setErrorMessage(err.response.data.message)
-        }
+        setErrorMessages([err.response.data.message]);
+      }
     }
 
     return (
@@ -96,12 +106,16 @@ export default function LoginPage(){
                   Log in
                 </button>
 
-                <div className="flex h-8 items-center space-x-1">
-                  {errorMessage && (
-                    <>
-                      <FaExclamationCircle  className="text-red-500 h-4 w-4" />
-                      <p className="text-sm text-red-500">{errorMessage}</p>
-                    </>
+                <div className="mt-3">
+                  {errorMessages.length > 0 && (
+                    <div className="bg-red-50 p-3 rounded-md border border-red-200">
+                      {errorMessages.map((error, index) => (
+                        <div key={index} className="flex items-center space-x-1 mb-1">
+                          <FaExclamationCircle className="text-red-500 h-4 w-4 flex-shrink-0" />
+                          <p className="text-sm text-red-500">{error}</p>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
